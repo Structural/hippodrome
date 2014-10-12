@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
                           one direction in this, a Flux implementation that only
                           Ben Hur could love.}
   spec.description   = %q{Longer descripttion to make rake happy.}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/Structural/hippodrome"
   spec.license       = "MIT"
 
   spec.files         = Dir["{lib,app}/**/*"] + ["LICENSE.txt", "README.md"]
