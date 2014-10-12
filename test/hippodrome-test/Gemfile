@@ -1,11 +1,14 @@
 source 'https://rubygems.org'
 
+# Apparently we have to have this even if we don't want a database
+gem 'sqlite3'
+
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.0.4'
 
 # Use CoffeeScript for .js.coffee assets and views
 gem 'coffee-rails', '~> 4.0.0'
 
-gem 'jasmine'
+gem 'jasmine-rails'
 
 gem 'hippodrome', :path => '../..'
