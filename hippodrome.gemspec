@@ -6,7 +6,7 @@ require 'hippodrome/version'
 Gem::Specification.new do |spec|
   spec.name          = "hippodrome"
   spec.version       = Hippodrome::VERSION
-  spec.authors       = ["Sean Kermes", "William Lubelksi"]
+  spec.authors       = ["Sean Kermes", "William Lubelski"]
   spec.email         = ["skermes@gmail.com", "will.lubelski@gmail.com"]
   spec.summary       = %q{Your data, like your chariots, go around and around in
                           one direction in this, a Flux implementation that only
