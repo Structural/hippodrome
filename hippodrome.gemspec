@@ -11,7 +11,9 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{Your data, like your chariots, go around and around in
                           one direction in this, a Flux implementation that only
                           Ben Hur could love.}
-  spec.description   = %q{Longer descripttion to make rake happy.}
+  spec.description   = %q{Your data, like your chariots, go around and around in
+                          one direction in this, a Flux implementation that only
+                          Ben Hur could love.}
   spec.homepage      = "https://github.com/Structural/hippodrome"
   spec.license       = "MIT"
 
