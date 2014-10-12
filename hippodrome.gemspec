@@ -6,9 +6,11 @@ require 'hippodrome/version'
 Gem::Specification.new do |spec|
   spec.name          = "hippodrome"
   spec.version       = Hippodrome::VERSION
-  spec.authors       = ["Sean Kermes"]
-  spec.email         = ["skermes@gmail.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
+  spec.authors       = ["Sean Kermes", "William Lubelksi"]
+  spec.email         = ["skermes@gmail.com", "will.lubelski@gmail.com"]
+  spec.summary       = %q{Your data, like your chariots, go around and around in
+                          one direction in this, a Flux implementation that only
+                          Ben Hur could love.}
   spec.description   = %q{TODO: Write a longer description. Optional.}
   spec.homepage      = ""
   spec.license       = "MIT"
