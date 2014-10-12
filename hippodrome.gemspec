@@ -25,4 +25,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "railties", "~> 4.0"
   spec.add_dependency "coffee-rails", "~> 4.0.1"
+  spec.add_dependency "lodash-rails", "~> 2.4.1"
 end
