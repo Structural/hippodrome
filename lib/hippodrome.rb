@@ -1,3 +1,5 @@
+require 'lodash-rails'
+
 require "hippodrome/version"
 
 module Hippodrome
