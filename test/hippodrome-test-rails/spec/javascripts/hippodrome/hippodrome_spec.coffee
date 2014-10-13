@@ -1,3 +1,10 @@
+#= require ../helpers/spec_helper
+
+if this.require
+  Hippodrome = require('hippodrome')
+else
+  Hippodrome = this.Hippodrome
+
 describe 'Hippodrome', ->
   beforeEach ->
     @Actions =
