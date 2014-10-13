@@ -1,0 +1,13 @@
+{
+  "name": "hippodrome-test-npm",
+  "version": "0.0.0",
+  "description": "Test harness for hippodrome's npm module.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jasmine-node --coffee spec/javascripts"
+  },
+  "author": "",
+  "dependencies": {
+    "hippodrome": "../.."
+  }
+}
