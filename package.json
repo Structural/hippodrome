@@ -2,7 +2,7 @@
   "name": "hippodrome",
   "version": "0.0.8",
   "description": "Your data, like your chariots, go around and around in one direction in this, a Flux implementation that only Ben Hur could love.",
-  "main": "hippodrome.js",
+  "main": "js/hippodrome.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
