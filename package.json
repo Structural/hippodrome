@@ -4,7 +4,9 @@
   "description": "Your data, like your chariots, go around and around in one direction in this, a Flux implementation that only Ben Hur could love.",
   "main": "js/hippodrome.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "coffee -o js -c app/assets/javascripts",
+    "prepublish": "coffee -o js -c app/assets/javascripts"
   },
   "engines": {
     "node": "0.10.x"
