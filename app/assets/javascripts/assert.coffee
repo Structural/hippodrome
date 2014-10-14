@@ -1,4 +1,4 @@
-Hippodrome.assert = (condition, message, args...) ->
+assert = (condition, message, args...) ->
   if not condition
     # TODO: Don't report in non-dev mode
     argIndex = 0;
@@ -10,3 +10,8 @@ Hippodrome.assert = (condition, message, args...) ->
     throw error
 
   condition
+
+if typeof window == 'undefined'
+  module.exports = assert
+else
+  Hippodrome.assert = assert

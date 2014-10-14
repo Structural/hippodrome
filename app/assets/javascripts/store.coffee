@@ -1,3 +1,15 @@
+#= require ./dispatcher
+#= require ./assert
+
+if typeof window == 'undefined'
+  _ = require('lodash')
+  Dispatcher = require('./dispatcher')
+  assert = require('./assert')
+else
+  _ = this._
+  Dispatcher = Hippodrome.Dispatcher
+  assert = Hippodrome.assert
+
 bindToContextIfFunction = (context) ->
   (objValue, srcValue) ->
     if srcValue instanceof Function
@@ -17,14 +29,14 @@ Store = (options) ->
     _.forEach(options.dispatches, (callbackDescription) =>
       {action, after, callback} = callbackDescription
 
-      Hippodrome.assert(not @dispatcherIdsByAction[action.hippoName]
+      assert(not @dispatcherIdsByAction[action.hippoName]
              'Each store can only register one callback for each action.')
 
       if typeof callback == 'string'
         callback = @[callback]
       callback = callback.bind(@)
 
-      id = Hippodrome.Dispatcher.register(this, action.hippoName, after, callback)
+      id = Dispatcher.register(this, action.hippoName, after, callback)
       @dispatcherIdsByAction[action.hippoName] = id
     )
 
@@ -49,4 +61,7 @@ Store.prototype.listen = (callbackName) ->
 Store.prototype.trigger = ->
   _.forEach(@callbacks, (callback) -> callback())
 
-Hippodrome.Store = Store
+if typeof window == 'undefined'
+  module.exports = Store
+else
+  Hippodrome.Store = Store

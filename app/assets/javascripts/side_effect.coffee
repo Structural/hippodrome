@@ -1,7 +1,19 @@
+#= require ./dispatcher
+#= require ./assert
+
+if typeof window == 'undefined'
+  _ = require('lodash')
+  Dispatcher = require('./dispatcher')
+  assert = require('./assert')
+else
+  _ = this._
+  Dispatcher = Hippodrome.Dispatcher
+  assert = Hippodrome.assert
+
 SideEffect = (options) ->
-  Hippodrome.assert(options.action,
+  assert(options.action,
          'SideEffect must register for exactly one action.')
-  Hippodrome.assert(options.effect,
+  assert(options.effect,
          'SideEffect must supply exactly one effect to run')
 
   {action, effect} = options
@@ -10,10 +22,13 @@ SideEffect = (options) ->
     effect = this[effect]
   effect = _.defer.bind(this, effect)
 
-  id = Hippodrome.Dispatcher.register(this, action.hippoName, [], effect)
+  id = Dispatcher.register(this, action.hippoName, [], effect)
   @dispatcherIdsByAction = {}
   @dispatcherIdsByAction[action.hippoName] = id
 
   this
 
-Hippodrome.SideEffect = SideEffect
+if typeof window == 'undefined'
+  module.exports = SideEffect
+else
+  Hippodrome.SideEffect = SideEffect

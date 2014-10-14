@@ -1,6 +1,4 @@
-#= require ../helpers/spec_helper
-
-if this.require
+if typeof window == 'undefined'
   Hippodrome = require('hippodrome')
 else
   Hippodrome = this.Hippodrome
