@@ -1,3 +1,5 @@
+require 'json'
+
 module Hippodrome
-  VERSION = "0.0.11"
+  VERSION = JSON.load(File.open('package.json', 'r'))['version']
 end
