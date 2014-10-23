@@ -16,7 +16,8 @@ spec/reports
 test/
 tmp
 
-# app/ holds coffeescript files.  npm only cares about the compiled js.
+# src/ holds coffeescript files.  npm only cares about the compiled js.
+src/
 app/
 Gemfile
 hippodrome.gemspec
