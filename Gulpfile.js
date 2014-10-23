@@ -6,12 +6,13 @@ var prepend = require('gulp-insert').prepend
 gulp.task('build', function() {
   // Order here is important.
   files = [
+    './src/setup.coffee',
     './src/assert.coffee',
     './src/action.coffee',
     './src/dispatcher.coffee',
     './src/side_effect.coffee',
     './src/store.coffee',
-    './src/hippodrome.coffee'
+    './src/export.coffee'
   ]
 
   gulp.src(files)

@@ -24,7 +24,7 @@ Store = (options) ->
         callback = @[callback]
       callback = callback.bind(@)
 
-      id = Dispatcher.register(this, action.hippoName, after, callback)
+      id = Hippodrome.Dispatcher.register(this, action.hippoName, after, callback)
       @dispatcherIdsByAction[action.hippoName] = id
     )
 
@@ -48,3 +48,5 @@ Store.prototype.listen = (callbackName) ->
 
 Store.prototype.trigger = ->
   _.forEach(@callbacks, (callback) -> callback())
+
+Hippodrome.Store = Store

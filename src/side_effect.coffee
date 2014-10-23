@@ -10,8 +10,10 @@ SideEffect = (options) ->
     effect = this[effect]
   effect = _.defer.bind(this, effect)
 
-  id = Dispatcher.register(this, action.hippoName, [], effect)
+  id = Hippodrome.Dispatcher.register(this, action.hippoName, [], effect)
   @dispatcherIdsByAction = {}
   @dispatcherIdsByAction[action.hippoName] = id
 
   this
+
+Hippodrome.SideEffect = SideEffect

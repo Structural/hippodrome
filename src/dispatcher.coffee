@@ -79,3 +79,5 @@ Dispatcher.prototype.startDispatching = (payload) ->
 Dispatcher.prototype.stopDispatching = ->
   @payload = null
   @isDispatching = false
+
+Hippodrome.Dispatcher = new Dispatcher()

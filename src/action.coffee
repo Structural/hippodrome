@@ -5,7 +5,7 @@ Action = (name, ctor) ->
     payload
 
   send = (payload) ->
-    Dispatcher.dispatch(payload)
+    Hippodrome.Dispatcher.dispatch(payload)
 
   actionFn = ->
     payload = buildPayload.apply(null, arguments)
@@ -18,3 +18,5 @@ Action = (name, ctor) ->
   actionFn.toString = -> name
 
   actionFn
+
+Hippodrome.Action = Action
