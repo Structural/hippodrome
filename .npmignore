@@ -22,3 +22,5 @@ app/
 Gemfile
 hippodrome.gemspec
 hippodrome.sublime-*
+Rakefile
+Gulpfile.js
