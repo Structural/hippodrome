@@ -1,19 +1,19 @@
-SideEffect = (options) ->
+DeferredTask = (options) ->
   assert(options.action,
-         'SideEffect must register for exactly one action.')
-  assert(options.effect,
-         'SideEffect must supply exactly one effect to run')
+         'DeferredTask must register for exactly one action.')
+  assert(options.task,
+         'DeferredTask must supply exactly one task to run')
 
-  {action, effect} = options
+  {action, task} = options
 
-  if typeof effect == 'string'
-    effect = this[effect]
-  effect = _.defer.bind(this, effect)
+  if typeof task == 'string'
+    task = this[task]
+  task = _.defer.bind(this, task)
 
-  id = Hippodrome.Dispatcher.register(this, action.hippoName, [], effect)
+  id = Hippodrome.Dispatcher.register(this, action.hippoName, [], task)
   @dispatcherIdsByAction = {}
   @dispatcherIdsByAction[action.hippoName] = id
 
   this
 
-Hippodrome.SideEffect = SideEffect
+Hippodrome.DeferredTask = DeferredTask

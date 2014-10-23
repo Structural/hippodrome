@@ -15,7 +15,7 @@ describe 'Hippodrome', ->
         new Hippodrome.Action 'dispatchDuringDispatch', -> {}
       circle: new Hippodrome.Action 'circle', -> {}
       badPrereq: new Hippodrome.Action 'badPrereq', -> {}
-      effect: new Hippodrome.Action 'effect', -> {}
+      task: new Hippodrome.Action 'task', -> {}
 
     @NameStore = new Hippodrome.Store
       initialize: ->
@@ -127,19 +127,19 @@ describe 'Hippodrome', ->
     expect(@StoreTwo.data).toBe(16)
     expect(@StoreThree.data).toBe(64)
 
-  it 'can send an action to a side effect', (done) ->
-    effected = false
-    MyEffect = new Hippodrome.SideEffect
-      action: @Actions.effect
-      effect: (payload) -> effected = true
+  it 'can send an action to a deferred task', (done) ->
+    tasked = false
+    MyEffect = new Hippodrome.DeferredTask
+      action: @Actions.task
+      task: (payload) -> tasked = true
 
-    @Actions.effect()
+    @Actions.task()
 
-    # SideEffects execute after the current call stack is done, so in order to
+    # DeferredTasks execute after the current call stack is done, so in order to
     # test that they worked, we also have to bounce off the call stack.  This
     # is kind of a hack, but it works.
     test = ->
-      expect(effected).toBe(true)
+      expect(tasked).toBe(true)
       done()
 
     setTimeout(test, 100)
@@ -168,16 +168,16 @@ describe 'Hippodrome', ->
 
     expect(sendDispatchDuringDispatch).toThrow()
 
-  it 'fails when creating a side effect with no action', ->
-    makeBadSideEffect = ->
-      new Hippodrome.SideEffect
+  it 'fails when creating a deferred task with no action', ->
+    makeBadDeferredTask = ->
+      new Hippodrome.DeferredTask
         effect: (payload) ->
 
-    expect(makeBadSideEffect).toThrow()
+    expect(makeBadDeferredTask).toThrow()
 
-  it 'fails when creating a side effect with no effect', ->
-    makeBadSideEffect = ->
-      new Hippodrome.SideEffect
-        action: @Actions.effect
+  it 'fails when creating a deferred task with no effect', ->
+    makeBadDeferredTask = ->
+      new Hippodrome.DeferredTask
+        action: @Actions.task
 
-    expect(makeBadSideEffect).toThrow()
+    expect(makeBadDeferredTask).toThrow()
