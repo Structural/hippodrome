@@ -11,7 +11,7 @@ gulp.task('compile-javascript', function() {
     './src/assert.coffee',
     './src/action.coffee',
     './src/dispatcher.coffee',
-    './src/side_effect.coffee',
+    './src/deferred_task.coffee',
     './src/store.coffee',
     './src/export.coffee'
   ]
