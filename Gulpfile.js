@@ -29,3 +29,13 @@ gulp.task('build-gem', ['compile-javascript'], shell.task([
 ]));
 
 gulp.task('build', ['compile-javascript', 'build-gem']);
+
+gulp.task('release-gem', ['build'], shell.task([
+  'rake release'
+]));
+
+gulp.task('publish-node', ['build'], shell.task([
+  'npm publish'
+]));
+
+gulp.task('publish', ['release-gem', 'publish-node']);
