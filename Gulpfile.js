@@ -2,8 +2,9 @@ var gulp = require('gulp')
 var coffee = require('gulp-coffee')
 var concat = require('gulp-concat')
 var prepend = require('gulp-insert').prepend
+var shell = require('gulp-shell')
 
-gulp.task('build', function() {
+gulp.task('compile-javascript', function() {
   // Order here is important.
   files = [
     './src/setup.coffee',
@@ -22,3 +23,9 @@ gulp.task('build', function() {
       .pipe(gulp.dest('./js'))
       .pipe(gulp.dest('./app/assets/javascripts'))
 });
+
+gulp.task('build-gem', ['compile-javascript'], shell.task([
+  'rake build'
+]));
+
+gulp.task('build', ['compile-javascript', 'build-gem']);
