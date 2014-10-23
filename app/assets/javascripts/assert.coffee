@@ -10,8 +10,3 @@ assert = (condition, message, args...) ->
     throw error
 
   condition
-
-if typeof window == 'undefined'
-  module.exports = assert
-else
-  Hippodrome.assert = assert

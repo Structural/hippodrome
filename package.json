@@ -5,8 +5,8 @@
   "main": "js/hippodrome.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "coffee -o js -c app/assets/javascripts",
-    "prepublish": "coffee -o js -c app/assets/javascripts"
+    "build": "gulp build",
+    "prepublish": "gulp build"
   },
   "engines": {
     "node": "0.10.x"

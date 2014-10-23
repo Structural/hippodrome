@@ -1,12 +1,3 @@
-#= require ./assert
-
-if typeof window == 'undefined'
-  _ = require('lodash')
-  assert = require('./assert')
-else
-  _ = this._
-  assert = Hippodrome.assert
-
 Dispatcher = ->
   @callbacksByAction = {}
   @isStarted = {}
@@ -88,8 +79,3 @@ Dispatcher.prototype.startDispatching = (payload) ->
 Dispatcher.prototype.stopDispatching = ->
   @payload = null
   @isDispatching = false
-
-if typeof window == 'undefined'
-  module.exports = new Dispatcher()
-else
-  Hippodrome.Dispatcher = new Dispatcher()

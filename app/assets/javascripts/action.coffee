@@ -1,10 +1,3 @@
-#= require ./dispatcher
-
-if typeof window == 'undefined'
-  Dispatcher = require('./dispatcher')
-else
-  Dispatcher = Hippodrome.Dispatcher
-
 Action = (name, ctor) ->
   buildPayload = ->
     payload = ctor.apply(null, arguments)
@@ -25,8 +18,3 @@ Action = (name, ctor) ->
   actionFn.toString = -> name
 
   actionFn
-
-if typeof window == 'undefined'
-  module.exports = Action
-else
-  Hippodrome.Action = Action

@@ -1,15 +1,3 @@
-#= require ./dispatcher
-#= require ./assert
-
-if typeof window == 'undefined'
-  _ = require('lodash')
-  Dispatcher = require('./dispatcher')
-  assert = require('./assert')
-else
-  _ = this._
-  Dispatcher = Hippodrome.Dispatcher
-  assert = Hippodrome.assert
-
 bindToContextIfFunction = (context) ->
   (objValue, srcValue) ->
     if srcValue instanceof Function
@@ -60,8 +48,3 @@ Store.prototype.listen = (callbackName) ->
 
 Store.prototype.trigger = ->
   _.forEach(@callbacks, (callback) -> callback())
-
-if typeof window == 'undefined'
-  module.exports = Store
-else
-  Hippodrome.Store = Store

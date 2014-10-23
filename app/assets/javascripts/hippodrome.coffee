@@ -1,14 +1,12 @@
-#= require lodash
-#= require_self
-#= require_tree .
+Hippodrome =
+  Action: Action
+  Dispatcher: Dispatcher
+  SideEffect: SideEffect
+  Store: Store
 
-if typeof window == 'undefined'
-  module.exports = {
-    Action: require('./action'),
-    assert: require('./assert'),
-    Dispatcher: require('./dispatcher'),
-    SideEffect: require('./side_effect'),
-    Store: require('./store')
-  }
+isNode = typeof window == 'undefined'
+
+if isNode
+  module.exports = Hippodrome
 else
-  this.Hippodrome = {}
+  this.Hippodrome = Hippodrome
