@@ -20,6 +20,8 @@ response.
 
 ## Installation
 
+### Rails
+
 Add this line to your application's Gemfile:
 
     gem 'hippodrome'
@@ -32,11 +34,22 @@ Or install it yourself as:
 
     $ gem install hippodrome
 
+### Node
+
+    npm install --save hippodrome
+
 ## Usage
+
+### Rails
 
 In your javascript manifest file:
 
     //= require hippodrome
+
+### Node
+
+    Hippodrome = require('hippodrome')
+
 
 TODO: Explain how all the bits work.
 
