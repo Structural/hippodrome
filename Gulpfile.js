@@ -6,12 +6,12 @@ var prepend = require('gulp-insert').prepend
 gulp.task('build', function() {
   // Order here is important.
   files = [
-    './app/assets/javascripts/assert.coffee',
-    './app/assets/javascripts/action.coffee',
-    './app/assets/javascripts/dispatcher.coffee',
-    './app/assets/javascripts/side_effect.coffee',
-    './app/assets/javascripts/store.coffee',
-    './app/assets/javascripts/hippodrome.coffee'
+    './src/assert.coffee',
+    './src/action.coffee',
+    './src/dispatcher.coffee',
+    './src/side_effect.coffee',
+    './src/store.coffee',
+    './src/hippodrome.coffee'
   ]
 
   gulp.src(files)
@@ -19,4 +19,5 @@ gulp.task('build', function() {
       .pipe(coffee())
       .pipe(prepend('//= require lodash\n\n')) // For the rails asset pipeline.
       .pipe(gulp.dest('./js'))
+      .pipe(gulp.dest('./app/assets/javascripts'))
 });
