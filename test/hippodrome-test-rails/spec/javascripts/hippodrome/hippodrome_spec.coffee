@@ -106,7 +106,7 @@ describe 'Hippodrome', ->
       public:
         data: -> @data
     Hippodrome.Dispatcher.register(
-      @StoreOne, @Actions.circle.hippoName, [@StoreThree], ->)
+      @StoreOne, @Actions.circle, [@StoreThree], ->)
 
     @StoreWithAPI = new Hippodrome.Store
       initialize: ->
