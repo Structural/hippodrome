@@ -5,9 +5,7 @@ Dispatcher = ->
   @isDispatching = false
   @payload = null
 
-prefix = 'Dispatcher_ID_'
-lastId = 1
-nextId = -> prefix + lastId++
+dispatcherIds = new IdFactory('Dispatcher_ID')
 
 Dispatcher.prototype.register = ->
   args = _.compact(arguments)
@@ -18,7 +16,7 @@ Dispatcher.prototype.register = ->
     [store, action, prereqStores, callback] = args
     @callbacksByAction[action] ?= {}
 
-    id = nextId()
+    id = dispatcherIds.next()
     @callbacksByAction[action][id] = {
       callback: callback,
       prerequisites: _.map(prereqStores,
