@@ -21,15 +21,15 @@ Store = (options) ->
     _.forEach options.dispatches, (dispatch) =>
       {action, after, callback} = dispatch
 
-      assert(not @storeImpl.dispatcherIdsByAction[action.hippoName],
+      assert(not @storeImpl.dispatcherIdsByAction[action.id],
              'Each store can only register one callback for each action.')
 
       if typeof callback == 'string'
         callback = @storeImpl[callback]
       callback = callback.bind(@storeImpl)
 
-      id = Hippodrome.Dispatcher.register(this, action.hippoName, after, callback)
-      @storeImpl.dispatcherIdsByAction[action.hippoName] = id
+      id = Hippodrome.Dispatcher.register(this, action.id, after, callback)
+      @storeImpl.dispatcherIdsByAction[action.id] = id
 
   this
 

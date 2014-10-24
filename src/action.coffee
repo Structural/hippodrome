@@ -1,7 +1,11 @@
+actionIds = new IdFactory('Action_ID')
+
 Action = (name, ctor) ->
+  id = "#{actionIds.next()}_#{name}"
+
   buildPayload = ->
     payload = ctor.apply(null, arguments)
-    payload.action = name
+    payload.action = id
     payload
 
   send = (payload) ->
@@ -15,7 +19,8 @@ Action = (name, ctor) ->
   actionFn.send = send
 
   actionFn.hippoName = name
-  actionFn.toString = -> name
+  actionFn.id = id
+  actionFn.toString = -> id
 
   actionFn
 
