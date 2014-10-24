@@ -167,6 +167,13 @@ describe 'Hippodrome', ->
   it 'can\'t see functions not declared in public', ->
     expect(@StoreWithAPI.notVisibleToAPI).toBe(undefined)
 
+  it 'doesn\'t run callbacks that weren\'t registered to the action', ->
+    @Actions.changeName('Ephraim')
+    expect(@NameStore.getName()).toBe('Ephraim')
+
+    @Actions.run()
+    expect(@NameStore.getName()).toBe('Ephraim')
+
   it 'fails when store prerequisites have a circular dependency', ->
     sendCircularDep = -> @Actions.circle()
 
