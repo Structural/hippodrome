@@ -22,7 +22,7 @@ Dispatcher.prototype.register = ->
     @callbacksByAction[action][id] = {
       callback: callback,
       prerequisites: _.map(prereqStores,
-                           (ps) -> ps.dispatcherIdsByAction[action])
+                           (ps) -> ps.storeImpl.dispatcherIdsByAction[action])
     }
     id
 

@@ -31,6 +31,8 @@ describe 'Hippodrome', ->
         }
       ]
       changeNameFn: (payload) -> @name = payload.name
+      public:
+        getName: -> @name
 
     @OtherNameStore = new Hippodrome.Store
       initialize: ->
@@ -38,9 +40,11 @@ describe 'Hippodrome', ->
       dispatches: [
         {
           action: @Actions.changeName
-          callback: (payload) -> @name = "Other #{payload.name}"
+          callback: (payload) -> @otherName = "Other #{payload.name}"
         }
       ]
+      public:
+        getName: -> @otherName
 
     @StoreOne = new Hippodrome.Store
       initialize: ->
@@ -56,6 +60,8 @@ describe 'Hippodrome', ->
             Hippodrome.Dispatcher.dispatch @Actions.run()
         }
       ]
+      public:
+        data: -> @data
     StoreOne = @StoreOne
 
     @StoreTwo = new Hippodrome.Store
@@ -65,7 +71,7 @@ describe 'Hippodrome', ->
         {
           action: @Actions.run
           after: [@StoreOne]
-          callback: (payload) -> @data = StoreOne.data * StoreOne.data
+          callback: (payload) -> @data = StoreOne.data() * StoreOne.data()
         }
         {
           action: @Actions.circle
@@ -78,6 +84,8 @@ describe 'Hippodrome', ->
           callback: (payload) ->
         }
       ]
+      public:
+        data: -> @data
     StoreTwo = @StoreTwo
 
     @StoreThree = new Hippodrome.Store
@@ -87,7 +95,7 @@ describe 'Hippodrome', ->
         {
           action: @Actions.run
           after: [@StoreOne, @StoreTwo]
-          callback: (payload) -> @data = StoreOne.data * StoreTwo.data
+          callback: (payload) -> @data = StoreOne.data() * StoreTwo.data()
         }
         {
           action: @Actions.circle
@@ -95,37 +103,40 @@ describe 'Hippodrome', ->
           callback: (payload) ->
         }
       ]
+      public:
+        data: -> @data
     Hippodrome.Dispatcher.register(
       @StoreOne, @Actions.circle.hippoName, [@StoreThree], ->)
 
     @StoreWithAPI = new Hippodrome.Store
       initialize: ->
         @data = {foo: 'Foo'}
-      getFoo: ->
-        @data.foo
+      public:
+        getFoo: -> @data.foo
+      notVisibleToAPI: -> 'Bar'
 
   it 'can send an action to a store', ->
     @Actions.changeName('Alice')
 
-    expect(@NameStore.name).toBe('Alice')
+    expect(@NameStore.getName()).toBe('Alice')
 
   it 'can send an action to a store via named function', ->
     @Actions.changeName('Bob')
 
-    expect(@NameStore.name).toBe('Bob')
+    expect(@NameStore.getName()).toBe('Bob')
 
   it 'can send an action to multiple stores', ->
     @Actions.changeName('Charlie')
 
-    expect(@NameStore.name).toBe('Charlie')
-    expect(@OtherNameStore.name).toBe('Other Charlie')
+    expect(@NameStore.getName()).toBe('Charlie')
+    expect(@OtherNameStore.getName()).toBe('Other Charlie')
 
   it 'can have one store wait for another', ->
     @Actions.run()
 
-    expect(@StoreOne.data).toBe(4)
-    expect(@StoreTwo.data).toBe(16)
-    expect(@StoreThree.data).toBe(64)
+    expect(@StoreOne.data()).toBe(4)
+    expect(@StoreTwo.data()).toBe(16)
+    expect(@StoreThree.data()).toBe(64)
 
   it 'can send an action to a deferred task', (done) ->
     tasked = false
@@ -148,10 +159,13 @@ describe 'Hippodrome', ->
     payload = @Actions.changeName.buildPayload('Dave')
     @Actions.changeName.send(payload)
 
-    expect(@NameStore.name).toBe('Dave')
+    expect(@NameStore.getName()).toBe('Dave')
 
   it 'can call other functions on a store', ->
     expect(@StoreWithAPI.getFoo()).toBe('Foo')
+
+  it 'can\'t see functions not declared in public', ->
+    expect(@StoreWithAPI.notVisibleToAPI).toBe(undefined)
 
   it 'fails when store prerequisites have a circular dependency', ->
     sendCircularDep = -> @Actions.circle()

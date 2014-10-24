@@ -6,35 +6,38 @@ bindToContextIfFunction = (context) ->
       srcValue
 
 Store = (options) ->
-  @dispatcherIdsByAction = {}
-  @callbacks = []
-  _.assign(this, _.omit(options, 'initialize', 'dispatches'), bindToContextIfFunction(this))
+  @storeImpl = {}
+  @storeImpl.dispatcherIdsByAction = {}
+  @storeImpl.callbacks = []
+  _.assign(@storeImpl, _.omit(options, 'initialize', 'dispatches', 'public'), bindToContextIfFunction(@storeImpl))
+
+  if options.public
+    _.assign(this, options.public, bindToContextIfFunction(@storeImpl))
 
   if options.initialize
-    options.initialize.call(@)
+    options.initialize.call(@storeImpl)
 
   if options.dispatches
-    _.forEach(options.dispatches, (callbackDescription) =>
-      {action, after, callback} = callbackDescription
+    _.forEach options.dispatches, (dispatch) =>
+      {action, after, callback} = dispatch
 
-      assert(not @dispatcherIdsByAction[action.hippoName]
+      assert(not @storeImpl.dispatcherIdsByAction[action.hippoName],
              'Each store can only register one callback for each action.')
 
       if typeof callback == 'string'
-        callback = @[callback]
-      callback = callback.bind(@)
+        callback = @storeImpl[callback]
+      callback = callback.bind(@storeImpl)
 
       id = Hippodrome.Dispatcher.register(this, action.hippoName, after, callback)
-      @dispatcherIdsByAction[action.hippoName] = id
-    )
+      @storeImpl.dispatcherIdsByAction[action.hippoName] = id
 
   this
 
 Store.prototype.register = (callback) ->
-  @callbacks.push(callback)
+  @storeImpl.callbacks.push(callback)
 
 Store.prototype.unregister = (callback) ->
-  @callbacks = _.reject(@callbacks, (cb) -> cb == callback)
+  @storeImpl.callbacks = _.reject(@storeImpl.callbacks, (cb) -> cb == callback)
 
 # register/unregister are completely general, this is tailored for React mixins.
 Store.prototype.listen = (callbackName) ->
@@ -47,6 +50,6 @@ Store.prototype.listen = (callbackName) ->
   }
 
 Store.prototype.trigger = ->
-  _.forEach(@callbacks, (callback) -> callback())
+  _.forEach(@storeImpl.callbacks, (callback) -> callback())
 
 Hippodrome.Store = Store
