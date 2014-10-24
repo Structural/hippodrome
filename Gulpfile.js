@@ -9,6 +9,7 @@ gulp.task('compile-javascript', function() {
   files = [
     './src/setup.coffee',
     './src/assert.coffee',
+    './src/id_factory.coffee',
     './src/action.coffee',
     './src/dispatcher.coffee',
     './src/deferred_task.coffee',
