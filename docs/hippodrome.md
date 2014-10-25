@@ -17,9 +17,9 @@ need to be there in order to complete the picture of how data moves around.
 
 ## Actions
 
-A Hippodrome Action is a function that builds a payload out of some arguments,
-then sends that payload to the Dispatcher for consumption by Stores and Tasks.
-Declare them like this:
+Starting at the left of the diagram, a Hippodrome Action is a function that
+builds a payload out of some arguments, then sends that payload to the
+Dispatcher for consumption by Stores and Tasks. Declare them like this:
 
 ```coffeescript
 ProfileEditor.Actions.updateName = new Hippodrome.Action(
