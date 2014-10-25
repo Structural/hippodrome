@@ -27,7 +27,7 @@ Dispatcher.prototype.register = ->
 Dispatcher::unregister = (action, id) ->
   assert(@_callbacksByAction[action][id],
          'Dispatcher.unregister(%s, %s) does not map to a registered callback.',
-         action, id)
+         action.displayName, id)
   @_callbacksByAction[action][id] = null
 
 Dispatcher::waitFor = (action, ids) ->
@@ -37,12 +37,12 @@ Dispatcher::waitFor = (action, ids) ->
     if @_isStarted[id]
       assert(@_isFinished[id],
              'Dispatcher.waitFor encountered circular dependency while ' +
-             'waiting for `%s` during %s.', id, action)
+             'waiting for `%s` during %s.', id, action.displayName)
       return
 
     assert(@_callbacksByAction[action][id],
            'Dispatcher.waitFor `%s` is not a registered callback for %s.',
-           id, action)
+           id, action.displayName)
     @invokeCallback(action, id)
   )
 

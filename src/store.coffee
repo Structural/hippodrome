@@ -13,6 +13,7 @@ Store = (options) ->
 
   if options.public
     _.assign(this, options.public, bindToContextIfFunction(@_storeImpl))
+  @displayName = options.displayName
 
   if options.initialize
     options.initialize.call(@_storeImpl)
@@ -22,7 +23,7 @@ Store = (options) ->
       {action, after, callback} = dispatch
 
       assert(not @_storeImpl.dispatcherIdsByAction[action.id],
-             'Each store can only register one callback for each action.')
+             "Store #{@displayName} registered two callbacks for action #{action.displayName}")
 
       if typeof callback == 'string'
         callback = @_storeImpl[callback]
