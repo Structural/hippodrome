@@ -1,6 +1,6 @@
 IdFactory = (prefix) ->
-  @lastId = 1
-  @prefix = prefix
+  @_lastId = 1
+  @_prefix = prefix
 
 IdFactory::next = ->
-  "#{@prefix}_#{@lastId++}"
+  "#{@_prefix}_#{@_lastId++}"

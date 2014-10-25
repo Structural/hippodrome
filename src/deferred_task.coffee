@@ -11,8 +11,8 @@ DeferredTask = (options) ->
   task = _.defer.bind(this, task)
 
   id = Hippodrome.Dispatcher.register(this, action.id, [], task)
-  @dispatcherIdsByAction = {}
-  @dispatcherIdsByAction[action.id] = id
+  @_dispatcherIdsByAction = {}
+  @_dispatcherIdsByAction[action.id] = id
 
   this
 

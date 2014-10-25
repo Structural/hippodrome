@@ -1,9 +1,9 @@
 Dispatcher = ->
-  @callbacksByAction = {}
-  @isStarted = {}
-  @isFinished = {}
-  @isDispatching = false
-  @payload = null
+  @_callbacksByAction = {}
+  @_isStarted = {}
+  @_isFinished = {}
+  @_isDispatching = false
+  @_payload = null
 
 dispatcherIds = new IdFactory('Dispatcher_ID')
 
@@ -14,46 +14,46 @@ Dispatcher.prototype.register = ->
     @register(args[0], args[1], [], args[2])
   else
     [store, action, prereqStores, callback] = args
-    @callbacksByAction[action] ?= {}
+    @_callbacksByAction[action] ?= {}
 
     id = dispatcherIds.next()
-    @callbacksByAction[action][id] = {
+    @_callbacksByAction[action][id] = {
       callback: callback,
       prerequisites: _.map(prereqStores,
-                           (ps) -> ps.storeImpl.dispatcherIdsByAction[action])
+                           (ps) -> ps._storeImpl.dispatcherIdsByAction[action])
     }
     id
 
 Dispatcher.prototype.unregister = (action, id) ->
-  assert(@callbacksByAction[action][id],
+  assert(@_callbacksByAction[action][id],
          'Dispatcher.unregister(%s, %s) does not map to a registered callback.',
          action, id)
-  @callbacks[action][id] = null
+  @_callbacksByAction[action][id] = null
 
 Dispatcher.prototype.waitFor = (action, ids) ->
-  assert(@isDispatching,
+  assert(@_isDispatching,
          'Dispatcher.waitFor must be invoked while dispatching.')
   _.forEach(ids, (id) =>
-    if @isStarted[id]
-      assert(@isFinished[id],
+    if @_isStarted[id]
+      assert(@_isFinished[id],
              'Dispatcher.waitFor encountered circular dependency while ' +
              'waiting for `%s` during %s.', id, action)
       return
 
-    assert(@callbacksByAction[action][id],
+    assert(@_callbacksByAction[action][id],
            'Dispatcher.waitFor `%s` is not a registered callback for %s.',
            id, action)
     @invokeCallback(action, id)
   )
 
 Dispatcher.prototype.dispatch = (payload) ->
-  assert(not @isDispatching,
+  assert(not @_isDispatching,
          'Dispatch.dispatch cannot be called during dispatch.')
   @startDispatching(payload)
   try
     action = payload.action
-    _.forEach(@callbacksByAction[action], (callback, id) =>
-      if @isStarted[id]
+    _.forEach(@_callbacksByAction[action], (callback, id) =>
+      if @_isStarted[id]
         return
 
       @invokeCallback(action, id)
@@ -62,20 +62,20 @@ Dispatcher.prototype.dispatch = (payload) ->
     @stopDispatching()
 
 Dispatcher.prototype.invokeCallback = (action, id) ->
-  @isStarted[id] = true
-  {callback, prerequisites} = @callbacksByAction[action][id]
+  @_isStarted[id] = true
+  {callback, prerequisites} = @_callbacksByAction[action][id]
   @waitFor(action, prerequisites)
-  callback(@payload)
-  @isFinished[id] = true
+  callback(@_payload)
+  @_isFinished[id] = true
 
 Dispatcher.prototype.startDispatching = (payload) ->
-  @isStarted = {}
-  @isFinished = {}
-  @payload = payload
-  @isDispatching = true
+  @_isStarted = {}
+  @_isFinished = {}
+  @_payload = payload
+  @_isDispatching = true
 
 Dispatcher.prototype.stopDispatching = ->
-  @payload = null
-  @isDispatching = false
+  @_payload = null
+  @_isDispatching = false
 
 Hippodrome.Dispatcher = new Dispatcher()
