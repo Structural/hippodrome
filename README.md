@@ -13,7 +13,7 @@ Hippodrome is an implementation of Facebook's
 [Flux](http://facebook.github.io/flux/docs/overview.html)
 architecture.  It adds some more structure (especially to Stores) to the ideas
 beyond what [Facebook's Flux](https://github.com/facebook/flux) has and
-includes Side Effects, objects that can respond to Actions (like Stores) but
+includes Deferred Tasks, objects that can respond to Actions (like Stores) but
 instead of exposing data to views, do additional asynchronous work like
 making a network request and possibly dispatching more actions based on the
 response.
