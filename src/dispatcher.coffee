@@ -7,7 +7,7 @@ Dispatcher = ->
 
 dispatcherIds = new IdFactory('Dispatcher_ID')
 
-Dispatcher.prototype.register = ->
+Dispatcher::register = ->
   args = _.compact(arguments)
 
   if args.length == 3
