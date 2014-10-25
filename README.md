@@ -18,6 +18,8 @@ instead of exposing data to views, do additional asynchronous work like
 making a network request and possibly dispatching more actions based on the
 response.
 
+For a more in-depth explanation, [read this](./docs/hippodrome.md).
+
 ## Installation
 
 ### Rails
