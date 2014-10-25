@@ -24,13 +24,13 @@ Dispatcher.prototype.register = ->
     }
     id
 
-Dispatcher.prototype.unregister = (action, id) ->
+Dispatcher::unregister = (action, id) ->
   assert(@_callbacksByAction[action][id],
          'Dispatcher.unregister(%s, %s) does not map to a registered callback.',
          action, id)
   @_callbacksByAction[action][id] = null
 
-Dispatcher.prototype.waitFor = (action, ids) ->
+Dispatcher::waitFor = (action, ids) ->
   assert(@_isDispatching,
          'Dispatcher.waitFor must be invoked while dispatching.')
   _.forEach(ids, (id) =>
@@ -46,7 +46,7 @@ Dispatcher.prototype.waitFor = (action, ids) ->
     @invokeCallback(action, id)
   )
 
-Dispatcher.prototype.dispatch = (payload) ->
+Dispatcher::dispatch = (payload) ->
   assert(not @_isDispatching,
          'Dispatch.dispatch cannot be called during dispatch.')
   @startDispatching(payload)
@@ -61,20 +61,20 @@ Dispatcher.prototype.dispatch = (payload) ->
   finally
     @stopDispatching()
 
-Dispatcher.prototype.invokeCallback = (action, id) ->
+Dispatcher::invokeCallback = (action, id) ->
   @_isStarted[id] = true
   {callback, prerequisites} = @_callbacksByAction[action][id]
   @waitFor(action, prerequisites)
   callback(@_payload)
   @_isFinished[id] = true
 
-Dispatcher.prototype.startDispatching = (payload) ->
+Dispatcher::startDispatching = (payload) ->
   @_isStarted = {}
   @_isFinished = {}
   @_payload = payload
   @_isDispatching = true
 
-Dispatcher.prototype.stopDispatching = ->
+Dispatcher::stopDispatching = ->
   @_payload = null
   @_isDispatching = false
 

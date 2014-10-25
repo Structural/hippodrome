@@ -33,14 +33,14 @@ Store = (options) ->
 
   this
 
-Store.prototype.register = (callback) ->
+Store::register = (callback) ->
   @_storeImpl.callbacks.push(callback)
 
-Store.prototype.unregister = (callback) ->
+Store::unregister = (callback) ->
   @_storeImpl.callbacks = _.reject(@_storeImpl.callbacks, (cb) -> cb == callback)
 
 # register/unregister are general purpose, this is tailored for React mixins.
-Store.prototype.listen = (callbackName) ->
+Store::listen = (callbackName) ->
   store = this
   return {
     componentDidMount: ->
@@ -49,7 +49,7 @@ Store.prototype.listen = (callbackName) ->
       store.unregister(this[callbackName])
   }
 
-Store.prototype.trigger = ->
+Store::trigger = ->
   _.forEach(@_storeImpl.callbacks, (callback) -> callback())
 
 Hippodrome.Store = Store
