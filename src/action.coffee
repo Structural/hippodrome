@@ -18,7 +18,7 @@ Action = (name, ctor) ->
   actionFn.buildPayload = buildPayload
   actionFn.send = send
 
-  actionFn.hippoName = name
+  actionFn.displayName = name
   actionFn.id = id
   actionFn.toString = -> id
 
