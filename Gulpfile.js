@@ -3,6 +3,8 @@ var coffee = require('gulp-coffee')
 var concat = require('gulp-concat')
 var prepend = require('gulp-insert').prepend
 var shell = require('gulp-shell')
+var uglify = require('gulp-uglify')
+var rename = require('gulp-rename')
 
 gulp.task('compile-javascript', function() {
   // Order here is important.
@@ -21,6 +23,13 @@ gulp.task('compile-javascript', function() {
       .pipe(concat('hippodrome.js'))
       .pipe(coffee())
       .pipe(prepend('//= require lodash\n\n')) // For the rails asset pipeline.
+      .pipe(gulp.dest('./js'))
+      .pipe(gulp.dest('./app/assets/javascripts'))
+      .pipe(uglify())
+      // When uglify preserves comments it doesn't leave the blank line, which
+      // is important for rails.  Easier to just take it off and put it back on.
+      .pipe(prepend('//= require lodash\n\n'))
+      .pipe(rename('hippodrome.min.js'))
       .pipe(gulp.dest('./js'))
       .pipe(gulp.dest('./app/assets/javascripts'))
 });
