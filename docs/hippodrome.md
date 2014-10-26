@@ -214,4 +214,21 @@ Tasks.SaveUserName = new Hippodrome.DeferredTask
 Again, `displayName` is used for debugging and error messages.  Each task can
 only be run from one Action, named in the `action` key.  The function in the
 `task` key is run every time the Dispatcher gets sent that action.  Unlike
-Store functions, Task functions are automatically deferred
+Store functions, Task functions are automatically deferred before running -
+Stores cannot wait on them, and there's no guarantee exactly when they'll
+execute (generally after the Stores are done and any views that re-rendered
+because of Store triggers have rendered).
+
+Stores are for holding your application's state, Tasks are for all the things
+you need to do over time - making network requests to your API to get or save
+data, running code periodically (like autosave) or repeatedly, like with
+requestAnimationFrame.  Tasks can also be used when one action needs to spawn
+more actions (remember, Stores cannot dispatch actions), such as an `appStart`
+action getting picked up by a `BootstrapData` Task that rebroadcasts Actions
+for each piece of bootstrap data sent by the server.
+
+The role of Stores, Actions and the Dispatcher are relatively well understood,
+or at least well defined by Facebook's description of Flux.  Tasks, being
+Hippodrome's own invention, are more speculative.  We expect them to change
+as we understand more of what we need out of them, and out of the system as a
+whole.
