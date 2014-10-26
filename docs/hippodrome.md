@@ -189,3 +189,29 @@ Components.Profile = React.createClass
   componentWillUnmount: ->
     Stores.UserProfile.unregister(@onProfileInfoChange)
 ```
+
+## Deferred Tasks
+
+A Deferred Task (or just Task for short) is in many ways the dual of a Store.
+Stores expose data to other parts of the system, Tasks can only hold internal
+state.  Store callbacks should always run quickly and synchronously, Task
+callbacks are always run asynchronously.  Stores can't dispatch new actions
+during their callbacks, the point of Task callbacks is generally to send one
+or more new actions.
+
+Declare a Task like this:
+
+```coffeescript
+Tasks.SaveUserName = new Hippodrome.DeferredTask
+  displayName: 'Save User Name'
+  action: Actions.updateName
+  task: (payload) ->
+    successCallback = -> Actions.updateSuccess()
+    errorCallback = -> Actions.apiError()
+    Api.saveUserProfile({name: payload.name}, successCallback, errorCallback)
+```
+
+Again, `displayName` is used for debugging and error messages.  Each task can
+only be run from one Action, named in the `action` key.  The function in the
+`task` key is run every time the Dispatcher gets sent that action.  Unlike
+Store functions, Task functions are automatically deferred
