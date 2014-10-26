@@ -102,3 +102,58 @@ While dispatching, run the listed callbacks before returning to the current
 one.  `waitFor` will make sure to only run each callback once during an Action's
 dispatch, and that any circular dependencies throw an error rather than running
 forever.
+
+# Stores
+
+A Hippodrome Store encapsulates all the Dispatcher operations above and exposes
+hooks for React views to get change events and new data out of the Store.
+Declare one like so
+
+```coffeescript
+Stores.UserProfile = new Hippodrome.Store
+  displayName: 'User Profile'
+
+  initialize: ->
+    @name = undefined
+    @email = undefined
+
+  dispatches: [{
+    action: Actions.updateName,
+    callback: (payload) -> @name = payload.name; @trigger()
+  }, {
+    action: Actions.updateEmail,
+    after: [Stores.EmailService]
+    callback: 'updateEmail'
+  }]
+
+  updateEmail: (payload) ->
+    @email = payload.email
+    @trigger()
+
+  public:
+    info: -> {name: @name, email: @email}
+```
+
+The Store's `displayName` is optional, but useful for debugging and error
+messages.  The `initialize` function is run once, when the Store is declared,
+and is used to set up the Store's state.  Generally, this is the empty state
+before the app has any data.
+
+The `dispatches` list is the meat of a Store.  It defines all the Actions and
+callbacks that a Store should register with the Dispatcher.  Callbacks can be
+either defined inline as an anonymous function, or as a string that names a
+function defined on the Store.  In addition, any Stores named in the `after`
+key will be automatically `waitFor`ed by the Dispatcher before running this
+Store's callback.
+
+The only fields available on the Store object returned from Hippodrome.Store
+are those under the `public` key.  Hippodrome's stance is that views shouldn't
+access Store data directly, Stores should expose a domain-specific API that
+can, at least partially, insulate views from the structure of the underlying
+data.
+
+To consume a Store's data in a React view, do something like this
+
+```coffeescript
+
+```
