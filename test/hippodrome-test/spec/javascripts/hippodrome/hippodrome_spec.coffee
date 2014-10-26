@@ -113,6 +113,7 @@ describe 'Hippodrome', ->
         @data = {foo: 'Foo'}
       public:
         getFoo: -> @data.foo
+        getBar: -> "#{@getFoo()}Bar"
       notVisibleToAPI: -> 'Bar'
 
   it 'can send an action to a store', ->
@@ -161,8 +162,11 @@ describe 'Hippodrome', ->
 
     expect(@NameStore.getName()).toBe('Dave')
 
-  it 'can call other functions on a store', ->
+  it 'can call public functions on a store', ->
     expect(@StoreWithAPI.getFoo()).toBe('Foo')
+
+  it 'can call public functions from other public function', ->
+    expect(@StoreWithAPI.getBar()).toBe('FooBar')
 
   it 'can\'t see functions not declared in public', ->
     expect(@StoreWithAPI.notVisibleToAPI).toBe(undefined)

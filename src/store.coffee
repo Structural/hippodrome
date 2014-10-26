@@ -13,6 +13,7 @@ Store = (options) ->
 
   if options.public
     _.assign(this, options.public, bindToContextIfFunction(@_storeImpl))
+    _.assign(@_storeImpl, options.public, bindToContextIfFunction(@_storeImpl))
   @displayName = options.displayName
 
   if options.initialize
