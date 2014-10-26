@@ -155,5 +155,37 @@ data.
 To consume a Store's data in a React view, do something like this
 
 ```coffeescript
+{div, span} = React.DOM
 
+Components.Profile = React.createClass
+  displayName: 'Profile'
+
+  mixins: [
+    Stores.UserProfile.listen('onProfileInfoChange')
+  ]
+
+  getInitialState: -> {info: Stores.UserProfile.info()}
+
+  onProfileInfoChange: ->
+    @setState(info: Stores.UserProfile.info())
+
+  render: ->
+    div {className: 'profile'},
+      span({className: 'name'}, @state.info.name),
+      span({className: 'email'}, @state.info.email)
+```
+
+All Stores expose a `listen` mixin that takes the name of a function and
+registers that function to be called by the Store whenever its data changes.
+(Strictly speaking, whenever the Store's `trigger` method is called, which
+should be whenever you change the data.)  If you prefer, you can register and
+unregister a component from a store directly:
+
+```coffeescript
+Components.Profile = React.createClass
+  componentDidMount: ->
+    Stores.UserProfile.register(@onProfileInfoChange)
+
+  componentWillUnmount: ->
+    Stores.UserProfile.unregister(@onProfileInfoChange)
 ```
