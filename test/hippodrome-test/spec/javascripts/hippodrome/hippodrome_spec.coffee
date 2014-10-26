@@ -16,6 +16,7 @@ describe 'Hippodrome', ->
       circle: new Hippodrome.Action 'circle', -> {}
       badPrereq: new Hippodrome.Action 'badPrereq', -> {}
       task: new Hippodrome.Action 'task', -> {}
+      trigger: new Hippodrome.Action 'trigger', -> {}
 
     @NameStore = new Hippodrome.Store
       initialize: ->
@@ -116,6 +117,16 @@ describe 'Hippodrome', ->
         getBar: -> "#{@getFoo()}Bar"
       notVisibleToAPI: -> 'Bar'
 
+    @StoreWithTrigger = new Hippodrome.Store
+      initialize: ->
+        @data = 0
+      dispatches: [{
+        action: @Actions.trigger
+        callback: (payload) -> @data = 5; @trigger()
+      }]
+      public:
+        data: -> @data
+
   it 'can send an action to a store', ->
     @Actions.changeName('Alice')
 
@@ -177,6 +188,14 @@ describe 'Hippodrome', ->
 
     @Actions.run()
     expect(@NameStore.getName()).toBe('Ephraim')
+
+  it 'runs callbacks registered to stores on trigger', ->
+    triggered = false
+    fn = -> triggered = true
+    @StoreWithTrigger.register(fn)
+    @Actions.trigger()
+
+    expect(triggered).toBe(true)
 
   it 'fails when store prerequisites have a circular dependency', ->
     sendCircularDep = -> @Actions.circle()

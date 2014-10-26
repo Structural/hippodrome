@@ -6,7 +6,9 @@ bindToContextIfFunction = (context) ->
       srcValue
 
 Store = (options) ->
-  @_storeImpl = {}
+  @_storeImpl = {
+    trigger: -> _.each(@callbacks, (callback) -> callback())
+  }
   @_storeImpl.dispatcherIdsByAction = {}
   @_storeImpl.callbacks = []
   _.assign(@_storeImpl, _.omit(options, 'initialize', 'dispatches', 'public'), bindToContextIfFunction(@_storeImpl))
@@ -52,6 +54,6 @@ Store::listen = (callbackName) ->
   }
 
 Store::trigger = ->
-  _.forEach(@_storeImpl.callbacks, (callback) -> callback())
+  @_storeImpl.trigger()
 
 Hippodrome.Store = Store
