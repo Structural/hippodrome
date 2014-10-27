@@ -216,8 +216,7 @@ only be run from one Action, named in the `action` key.  The function in the
 `task` key is run every time the Dispatcher gets sent that action.  Unlike
 Store functions, Task functions are automatically deferred before running -
 Stores cannot wait on them, and there's no guarantee exactly when they'll
-execute (generally after the Stores are done and any views that re-rendered
-because of Store triggers have rendered).
+execute (though it will always be after any Stores have finished).
 
 Stores are for holding your application's state, Tasks are for all the things
 you need to do over time - making network requests to your API to get or save
