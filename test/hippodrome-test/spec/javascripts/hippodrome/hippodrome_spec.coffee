@@ -152,7 +152,7 @@ describe 'Hippodrome', ->
 
   it 'can send an action to a deferred task', (done) ->
     tasked = false
-    MyEffect = new Hippodrome.DeferredTask
+    MyTask = new Hippodrome.DeferredTask
       action: @Actions.task
       task: (payload) -> tasked = true
 
@@ -163,6 +163,30 @@ describe 'Hippodrome', ->
     # is kind of a hack, but it works.
     test = ->
       expect(tasked).toBe(true)
+      done()
+
+    setTimeout(test, 100)
+
+  it 'can register a deferred task for multiple actions', (done) ->
+    tasked = false
+
+    MultiTask = new Hippodrome.DeferredTask
+      ran: false
+      dispatches: [{
+        action: @Actions.task
+        callback: (payload) -> tasked = true
+      }, {
+        action: @Actions.run
+        callback: 'onRun'
+      }]
+      onRun: (payload) -> @ran = true
+
+    @Actions.task()
+    @Actions.run()
+
+    test = ->
+      expect(tasked).toBe(true)
+      expect(MultiTask.ran).toBe(true)
       done()
 
     setTimeout(test, 100)

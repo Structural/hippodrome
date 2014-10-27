@@ -204,19 +204,39 @@ Declare a Task like this:
 ```coffeescript
 Tasks.SaveUserName = new Hippodrome.DeferredTask
   displayName: 'Save User Name'
+
   action: Actions.updateName
+
   task: (payload) ->
     successCallback = -> Actions.updateSuccess()
     errorCallback = -> Actions.apiError()
     Api.saveUserProfile({name: payload.name}, successCallback, errorCallback)
+
+Tasks.Autosave = new Hippodrome.DeferredTask
+  displayName: 'Autosave'
+
+  dispatches: [{
+    action: Actions.startEditing
+    callback: (payload) -> @intervalId = setInterval(doAutosave, 30000)
+  }, {
+    action: Actions.doneEditing
+    callback: 'doneEditing'
+  }]
+
+  doneEditing: (payload) ->
+    clearInterval(@intervalId)
+    @intervalID = undefined
 ```
 
-Again, `displayName` is used for debugging and error messages.  Each task can
-only be run from one Action, named in the `action` key.  The function in the
-`task` key is run every time the Dispatcher gets sent that action.  Unlike
-Store functions, Task functions are automatically deferred before running -
-Stores cannot wait on them, and there's no guarantee exactly when they'll
-execute (though it will always be after any Stores have finished).
+Again, `displayName` is used for debugging and error messages.  Most tasks only
+need to trigger from one action.  For convenience, you can declare those tasks
+with a top-level `action` and `task` key.  For more complicated tasks, you can
+use a `dispatches` list like Stores, though Tasks cannot wait on other Tasks
+or Stores to be run.
+
+Unlike Store functions, Task functions are automatically deferred before
+running - Stores cannot wait on them, and there's no guarantee exactly when
+they'll execute (though it will always be after any Stores have finished).
 
 Stores are for holding your application's state, Tasks are for all the things
 you need to do over time - making network requests to your API to get or save
