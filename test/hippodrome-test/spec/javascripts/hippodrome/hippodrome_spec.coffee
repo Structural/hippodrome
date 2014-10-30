@@ -221,6 +221,15 @@ describe 'Hippodrome', ->
 
     expect(triggered).toBe(true)
 
+  it 'runs initialize on stores at setup', ->
+    initializeStore = new Hippodrome.Store
+      initialize: ->
+        @data = 'initialized'
+      public:
+        data: -> @data
+
+    expect(initializeStore.data()).toBe('initialized')
+
   it 'fails when store prerequisites have a circular dependency', ->
     sendCircularDep = -> @Actions.circle()
 
