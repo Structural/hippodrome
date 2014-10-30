@@ -230,6 +230,16 @@ describe 'Hippodrome', ->
 
     expect(initializeStore.data()).toBe('initialized')
 
+  it 'runs initialze on tasks at setup', ->
+    data = undefined
+    initializeTask = new Hippodrome.DeferredTask
+      initialize: ->
+        data = 'initialized'
+      action: @Actions.task
+      task: ->
+
+    expect(data).toBe('initialized')
+
   it 'fails when store prerequisites have a circular dependency', ->
     sendCircularDep = -> @Actions.circle()
 

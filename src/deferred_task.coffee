@@ -19,6 +19,9 @@ DeferredTask = (options) ->
 
   @_dispatcherIdsByAction = {}
 
+  if options.initialize
+    options.initialize.call(this)
+
   if options.action and options.task
     {action, task} = options
 
