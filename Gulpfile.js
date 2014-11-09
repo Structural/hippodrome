@@ -77,18 +77,14 @@ gulp.task('commit-version-changes', ['prepare-gem', 'prepare-npm'], function() {
 })
 
 gulp.task('release-gem', ['commit-version-changes'], shell.task([
-  'cd rails',
   'rake build',
-  'rake release',
-  'cd ..'
-]))
+  'rake release'
+], {cwd: './rails'}))
 
 // Strictly speaking, this doesn't depend on releasing the gem, but I want them
 // to run in order.
 gulp.task('publish-npm', ['release-gem'], shell.task([
-  'cd npm',
-  'npm publish',
-  'cd ..'
-]))
+  'npm publish'
+], {cwd: './npm'}))
 
 gulp.task('publish', ['publish-npm'])
