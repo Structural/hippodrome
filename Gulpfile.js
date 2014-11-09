@@ -27,3 +27,11 @@ gulp.task('build', function() {
       .pipe(rename('hippodrome.min.js'))
       .pipe(gulp.dest('./dist'))
 });
+
+gulp.task('test', ['build'], shell.task([
+  'npm run test'
+]))
+
+gulp.task('watch', ['test'], function() {
+  gulp.watch('src/**/*.coffee', ['test']);
+})
