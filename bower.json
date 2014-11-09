@@ -25,7 +25,9 @@
     "package.json",
     "rails",
     "rails_test",
-    "src"
+    "src",
+    "hippodrome.sublime-project",
+    "hippodrome.sublime-workspace"
   ],
   "dependencies": {
     "lodash": "~2.4.1"
