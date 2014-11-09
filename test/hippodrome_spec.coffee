@@ -1,7 +1,4 @@
-if typeof window == 'undefined'
-  Hippodrome = require('hippodrome')
-else
-  Hippodrome = this.Hippodrome
+Hippodrome = require('../dist/hippodrome.js')
 
 describe 'Hippodrome', ->
   beforeEach ->
