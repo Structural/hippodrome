@@ -19,3 +19,4 @@ tmp
 node_modules/
 dist/*.js
 app/assets/javascripts/
+bower_components
