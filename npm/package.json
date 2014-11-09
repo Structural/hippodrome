@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "description": "Your data, like your chariots, go around and around in one direction in this, a Flux implementation that only Ben Hur could love.",
   "main": "hippodrome.js",
-  "scripts": {
-
-  },
+  "scripts": {},
   "engines": {
     "node": "0.10.x"
   },
