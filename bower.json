@@ -1,0 +1,37 @@
+{
+  "name": "hippodrome",
+  "version": "0.1.1",
+  "homepage": "https://github.com/Structural/hippodrome",
+  "authors": [
+    "Sean Kermes <skermes@gmail.com>",
+    "William Lubelski <will.lubelski@gmail.com>"
+  ],
+  "main": "bower/hippodrome.js",
+  "moduleType": [
+    "globals",
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "dist",
+    "Gulpfile.js",
+    "npm",
+    "npm_test",
+    "package.json",
+    "rails",
+    "rails_test",
+    "src"
+  ],
+  "dependencies": {
+    "lodash": "~2.4.1"
+  },
+  "keywords": [
+    "flux",
+    "react"
+  ]
+}
