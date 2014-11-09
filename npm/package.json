@@ -1,6 +1,6 @@
 {
   "name": "hippodrome",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Your data, like your chariots, go around and around in one direction in this, a Flux implementation that only Ben Hur could love.",
   "main": "hippodrome.js",
   "scripts": {},
