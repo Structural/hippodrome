@@ -5,6 +5,7 @@ var prepend = require('gulp-insert').prepend
 var shell = require('gulp-shell')
 var uglify = require('gulp-uglify')
 var rename = require('gulp-rename')
+var fs = require('fs')
 
 gulp.task('build', function() {
   // Order here is important.
@@ -35,3 +36,32 @@ gulp.task('test', ['build'], shell.task([
 gulp.task('watch', ['test'], function() {
   gulp.watch('src/**/*.coffee', ['test']);
 })
+
+gulp.task('set-npm-version', function() {
+  version = require('./package.json').version;
+  pkg = fs.readFileSync('./npm/package.json')
+  pkgJson = JSON.parse(pkg)
+  pkgJson.version = version
+  fs.writeFileSync('./npm/package.json', JSON.stringify(pkgJson, null, 2))
+})
+
+gulp.task('copy-npm-javascript', function() {
+  gulp.src('dist/*.js')
+      .pipe(gulp.dest('./npm'))
+})
+
+gulp.task('prepare-npm', ['set-npm-version', 'copy-npm-javascript'])
+
+gulp.task('set-gem-version', function() {
+  version = require('./package.json').version
+  gemVersionModule = 'module Hippodrome\n  VERSION = \'' + version + '\'\nend'
+  fs.writeFileSync('./rails/lib/hippodrome/version.rb', gemVersionModule)
+})
+
+gulp.task('copy-gem-javascript', function() {
+  gulp.src('dist/*/js')
+      .pipe(prepend('//= require lodash\n\n')) // Sprockets directive for rails.
+      .pipe(gulp.dest('./rails/app/assets/javascripts'))
+})
+
+gulp.task('prepare-gem', ['set-gem-version', 'copy-gem-javascript'])
