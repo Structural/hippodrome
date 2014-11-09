@@ -46,8 +46,8 @@ gulp.task('set-npm-version', function() {
 })
 
 gulp.task('copy-npm-javascript', function() {
-  gulp.src('dist/*.js')
-      .pipe(gulp.dest('./npm'))
+  return gulp.src('dist/*.js')
+             .pipe(gulp.dest('./npm'))
 })
 
 gulp.task('prepare-npm', ['set-npm-version', 'copy-npm-javascript'])
@@ -59,9 +59,9 @@ gulp.task('set-gem-version', function() {
 })
 
 gulp.task('copy-gem-javascript', function() {
-  gulp.src('dist/*/js')
-      .pipe(prepend('//= require lodash\n\n')) // Sprockets directive for rails.
-      .pipe(gulp.dest('./rails/app/assets/javascripts'))
+  return gulp.src('dist/*/js')
+             .pipe(prepend('//= require lodash\n\n')) // Sprockets directive for rails.
+             .pipe(gulp.dest('./rails/app/assets/javascripts'))
 })
 
 gulp.task('prepare-gem', ['set-gem-version', 'copy-gem-javascript'])
@@ -74,8 +74,8 @@ gulp.task('set-bower-version', function() {
 })
 
 gulp.task('copy-bower-javascript', function() {
-  gulp.src('dist/*.js')
-      .pipe(gulp.dest('./bower'))
+  return gulp.src('dist/*.js')
+             .pipe(gulp.dest('./bower'))
 })
 
 gulp.task('prepare-bower', ['set-bower-version', 'copy-bower-javascript'])
