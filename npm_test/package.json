@@ -1,0 +1,11 @@
+{
+  "name": "hippodrome-test-npm",
+  "version": "0.0.0",
+  "description": "Test loading hippodrome through npm",
+  "main": "",
+  "scripts": {},
+  "author": "",
+  "dependencies": {
+    "hippodrome": "../npm"
+  }
+}
