@@ -1,0 +1,10 @@
+<%= content_for :html do %>
+  <div id="root"></div>
+<% end %>
+
+<%= content_for :javascript do %>
+  document.addEventListener('DOMContentLoaded', function() {
+    el = document.getElementById('root');
+    el.innerText = Hippodrome;
+  });
+<% end %>
