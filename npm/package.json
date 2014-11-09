@@ -1,0 +1,34 @@
+{
+  "name": "hippodrome",
+  "version": "0.1.0",
+  "description": "Your data, like your chariots, go around and around in one direction in this, a Flux implementation that only Ben Hur could love.",
+  "main": "hippodrome.js",
+  "scripts": {
+
+  },
+  "engines": {
+    "node": "0.10.x"
+  },
+  "dependencies": {
+    "lodash": "^2.4.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Structural/hippodrome.git"
+  },
+  "contributors": [
+    {
+      "name": "Sean Kermes",
+      "email": "skermes@gmail.com"
+    },
+    {
+      "name": "William Lubelski",
+      "email": "will.lubelski@gmail.com"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Structural/hippodrome/issues"
+  },
+  "homepage": "https://github.com/Structural/hippodrome"
+}
