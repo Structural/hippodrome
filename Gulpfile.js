@@ -53,7 +53,7 @@ gulp.task('copy-npm-javascript', function() {
 gulp.task('prepare-npm', ['set-npm-version', 'copy-npm-javascript'])
 
 gulp.task('set-gem-version', function() {
-  version = require('./package.json').version
+  version = require('./package.json').version;
   gemVersionModule = 'module Hippodrome\n  VERSION = \'' + version + '\'\nend'
   fs.writeFileSync('./rails/lib/hippodrome/version.rb', gemVersionModule)
 })
@@ -65,3 +65,15 @@ gulp.task('copy-gem-javascript', function() {
 })
 
 gulp.task('prepare-gem', ['set-gem-version', 'copy-gem-javascript'])
+
+gulp.task('commit-version-changes', ['prepare-gem', 'prepare-npm'], function() {
+  version = require('./package.json').version;
+
+  gulp.src('')
+      .pipe(shell([
+        'git add npm/package.json rails/lib/hippodrome/version.rb',
+        'git commit -m "Build version ' + version + ' of hippodrome."'
+      ]))
+})
+
+gulp.task('publish', ['commit-version-changes'])
