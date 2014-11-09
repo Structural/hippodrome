@@ -6,7 +6,7 @@ var shell = require('gulp-shell')
 var uglify = require('gulp-uglify')
 var rename = require('gulp-rename')
 
-gulp.task('compile-javascript', function() {
+gulp.task('build', function() {
   // Order here is important.
   files = [
     './src/setup.coffee',
@@ -22,30 +22,8 @@ gulp.task('compile-javascript', function() {
   gulp.src(files)
       .pipe(concat('hippodrome.js'))
       .pipe(coffee())
-      .pipe(prepend('//= require lodash\n\n')) // For the rails asset pipeline.
-      .pipe(gulp.dest('./js'))
-      .pipe(gulp.dest('./app/assets/javascripts'))
+      .pipe(gulp.dest('./dist'))
       .pipe(uglify())
-      // When uglify preserves comments it doesn't leave the blank line, which
-      // is important for rails.  Easier to just take it off and put it back on.
-      .pipe(prepend('//= require lodash\n\n'))
       .pipe(rename('hippodrome.min.js'))
-      .pipe(gulp.dest('./js'))
-      .pipe(gulp.dest('./app/assets/javascripts'))
+      .pipe(gulp.dest('./dist'))
 });
-
-gulp.task('build-gem', ['compile-javascript'], shell.task([
-  'rake build'
-]));
-
-gulp.task('build', ['compile-javascript', 'build-gem']);
-
-gulp.task('release-gem', ['build'], shell.task([
-  'rake release'
-]));
-
-gulp.task('publish-node', ['build'], shell.task([
-  'npm publish'
-]));
-
-gulp.task('publish', ['release-gem', 'publish-node']);
