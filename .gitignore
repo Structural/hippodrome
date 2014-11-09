@@ -17,5 +17,5 @@ test/version_tmp
 tmp
 
 node_modules/
-js/*.js
+dist/*.js
 app/assets/javascripts/
