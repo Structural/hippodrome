@@ -76,4 +76,18 @@ gulp.task('commit-version-changes', ['prepare-gem', 'prepare-npm'], function() {
       ]))
 })
 
-gulp.task('publish', ['commit-version-changes'])
+gulp.task('release-gem', ['commit-version-changes'], shell.task([
+  'cd rails',
+  'rake release',
+  'cd ..'
+]))
+
+// Strictly speaking, this doesn't depend on releasing the gem, but I want them
+// to run in order.
+gulp.task('publish-npm', ['release-gem'], shell.task([
+  'cd npm',
+  'npm publish',
+  'cd ..'
+]))
+
+gulp.task('publish', ['publish-npm'])
