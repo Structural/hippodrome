@@ -78,6 +78,7 @@ gulp.task('commit-version-changes', ['prepare-gem', 'prepare-npm'], function() {
 
 gulp.task('release-gem', ['commit-version-changes'], shell.task([
   'cd rails',
+  'rake build',
   'rake release',
   'cd ..'
 ]))
