@@ -66,12 +66,26 @@ gulp.task('copy-gem-javascript', function() {
 
 gulp.task('prepare-gem', ['set-gem-version', 'copy-gem-javascript'])
 
-gulp.task('commit-version-changes', ['prepare-gem', 'prepare-npm'], function() {
+gulp.task('set-bower-version', function() {
+  version = require('./package.json').version
+  bowerJson = JSON.parse(fs.readFileSync('./bower.json'))
+  bowerJson.version = version
+  fs.writeFileSync('./bower.json', JSON.stringify(bowerJson, null, 2))
+})
+
+gulp.task('copy-bower-javascript', function() {
+  gulp.src('dist/*.js')
+      .pipe(gulp.dest('./bower'))
+})
+
+gulp.task('prepare-bower', ['set-bower-version', 'copy-bower-javascript'])
+
+gulp.task('commit-version-changes', ['prepare-gem', 'prepare-npm', 'prepare-bower'], function() {
   version = require('./package.json').version;
 
   gulp.src('')
       .pipe(shell([
-        'git add npm/package.json rails/lib/hippodrome/version.rb',
+        'git add npm/package.json rails/lib/hippodrome/version.rb ./bower.json bower/*.js',
         'git commit -m "Build version ' + version + ' of hippodrome."'
       ]))
 })
@@ -86,5 +100,8 @@ gulp.task('release-gem', ['commit-version-changes'], shell.task([
 gulp.task('publish-npm', ['release-gem'], shell.task([
   'npm publish'
 ], {cwd: './npm'}))
+
+// Pretend there's a publish-bower task here.  We don't need it because
+// release-gem will create and push the right tags for bower.
 
 gulp.task('publish', ['publish-npm'])
