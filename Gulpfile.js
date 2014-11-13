@@ -64,7 +64,12 @@ gulp.task('copy-gem-javascript', function() {
              .pipe(gulp.dest('./rails/app/assets/javascripts'))
 })
 
-gulp.task('prepare-gem', ['set-gem-version', 'copy-gem-javascript'])
+gulp.task('copy-gem-metafiles', function() {
+  return gulp.src(['LICENSE.txt', 'README.txt'])
+             .pipe(gulp.dest('./rails'))
+})
+
+gulp.task('prepare-gem', ['set-gem-version', 'copy-gem-javascript', 'copy-gem-metafiles'])
 
 gulp.task('set-bower-version', function() {
   version = require('./package.json').version
@@ -85,7 +90,7 @@ gulp.task('commit-version-changes', ['prepare-gem', 'prepare-npm', 'prepare-bowe
 
   gulp.src('')
       .pipe(shell([
-        'git add npm/package.json rails/lib/hippodrome/version.rb ./bower.json bower/*.js',
+        'git add npm/package.json rails/lib/hippodrome/version.rb rails/LICENSE.txt rails/README.md ./bower.json bower/*.js',
         'git commit -m "Build version ' + version + ' of hippodrome."'
       ]))
 })
