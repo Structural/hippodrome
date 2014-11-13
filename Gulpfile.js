@@ -65,7 +65,7 @@ gulp.task('copy-gem-javascript', function() {
 })
 
 gulp.task('copy-gem-metafiles', function() {
-  return gulp.src(['LICENSE.txt', 'README.txt'])
+  return gulp.src(['LICENSE.txt', 'README.md'])
              .pipe(gulp.dest('./rails'))
 })
 
