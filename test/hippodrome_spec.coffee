@@ -237,6 +237,25 @@ describe 'Hippodrome', ->
 
     expect(data).toBe('initialized')
 
+  it 'can call task functions from other task functions', (done) ->
+    value = 0
+    FnTask = new Hippodrome.DeferredTask
+      initialize: ->
+        @data(1)
+      action: @Actions.task
+      task: ->
+        @data(2)
+      data: (n) -> value = n
+
+    expect(value).toBe(1)
+    @Actions.task()
+
+    test = () ->
+      expect(value).toBe(2)
+      done()
+
+    setTimeout(test, 100)
+
   it 'fails when store prerequisites have a circular dependency', ->
     sendCircularDep = -> @Actions.circle()
 

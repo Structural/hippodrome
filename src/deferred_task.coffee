@@ -1,8 +1,8 @@
 makeDeferredFunction = (context, fn) ->
   if typeof fn == 'string'
     fn = context[fn]
-  fn = _.defer.bind(context, fn)
-  fn
+  # _.defer loses context, so we have to do it ourselves.
+  () -> setTimeout((() -> fn.call(context)), 1)
 
 DeferredTask = (options) ->
   @displayName = options.displayName
