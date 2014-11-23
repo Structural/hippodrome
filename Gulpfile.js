@@ -59,7 +59,7 @@ gulp.task('set-gem-version', function() {
 })
 
 gulp.task('copy-gem-javascript', function() {
-  return gulp.src('dist/*/js')
+  return gulp.src('dist/*.js')
              .pipe(prepend('//= require lodash\n\n')) // Sprockets directive for rails.
              .pipe(gulp.dest('./rails/app/assets/javascripts'))
 })
