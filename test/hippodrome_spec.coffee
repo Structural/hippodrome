@@ -13,6 +13,7 @@ describe 'Hippodrome', ->
       circle: new Hippodrome.Action 'circle', -> {}
       badPrereq: new Hippodrome.Action 'badPrereq', -> {}
       task: new Hippodrome.Action 'task', -> {}
+      argTask: new Hippodrome.Action 'argTask', (n) -> {n: n}
       trigger: new Hippodrome.Action 'trigger', -> {}
 
     @NameStore = new Hippodrome.Store
@@ -160,6 +161,20 @@ describe 'Hippodrome', ->
     # is kind of a hack, but it works.
     test = ->
       expect(tasked).toBe(true)
+      done()
+
+    setTimeout(test, 100)
+
+  it 'can send an action to a deferred task with a payload', (done) ->
+    value = 0
+    PayloadTask = new Hippodrome.DeferredTask
+      action: @Actions.argTask
+      task: (payload) -> value = payload.n
+
+    @Actions.argTask(5)
+
+    test = ->
+      expect(value).toBe(5)
       done()
 
     setTimeout(test, 100)
