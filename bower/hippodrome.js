@@ -162,8 +162,11 @@
     if (typeof fn === 'string') {
       fn = context[fn];
     }
-    fn = _.defer.bind(context, fn);
-    return fn;
+    return function() {
+      return setTimeout((function() {
+        return fn.call(context);
+      }), 1);
+    };
   };
 
   DeferredTask = function(options) {
