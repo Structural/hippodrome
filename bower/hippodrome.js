@@ -163,8 +163,10 @@
       fn = context[fn];
     }
     return function() {
+      var args;
+      args = arguments;
       return setTimeout((function() {
-        return fn.call(context);
+        return fn.apply(context, args);
       }), 1);
     };
   };
