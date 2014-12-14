@@ -141,6 +141,13 @@ describe 'Hippodrome', ->
     expect(@NameStore.getName()).toBe('Charlie')
     expect(@OtherNameStore.getName()).toBe('Other Charlie')
 
+  it 'tracks the last action sent to a store', ->
+    @Actions.changeName('Davendra')
+    expect(@NameStore.lastActionId()).toBe(@Actions.changeName.id)
+
+    @Actions.changeNameViaFn('Emil')
+    expect(@NameStore.lastActionId()).toBe(@Actions.changeNameViaFn.id)
+
   it 'can have one store wait for another', ->
     @Actions.run()
 

@@ -17,6 +17,7 @@ Store = (options) ->
     _.assign(this, options.public, bindToContextIfFunction(@_storeImpl))
     _.assign(@_storeImpl, options.public, bindToContextIfFunction(@_storeImpl))
   @displayName = options.displayName
+  @lastActionId = () => @_storeImpl._lastActionId
 
   if options.initialize
     options.initialize.call(@_storeImpl)
@@ -31,8 +32,12 @@ Store = (options) ->
       if typeof callback == 'string'
         callback = @_storeImpl[callback]
       callback = callback.bind(@_storeImpl)
+      handleAction = ((payload) ->
+        @_lastActionId = payload.action
+        callback(payload)
+      ).bind(@_storeImpl)
 
-      id = Hippodrome.Dispatcher.register(this, action.id, after, callback)
+      id = Hippodrome.Dispatcher.register(this, action.id, after, handleAction)
       @_storeImpl.dispatcherIdsByAction[action.id] = id
 
   this
