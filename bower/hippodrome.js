@@ -230,20 +230,29 @@
       _.assign(this._storeImpl, options["public"], bindToContextIfFunction(this._storeImpl));
     }
     this.displayName = options.displayName;
+    this.lastActionId = (function(_this) {
+      return function() {
+        return _this._storeImpl._lastActionId;
+      };
+    })(this);
     if (options.initialize) {
       options.initialize.call(this._storeImpl);
     }
     if (options.dispatches) {
       _.forEach(options.dispatches, (function(_this) {
         return function(dispatch) {
-          var action, after, callback, id;
+          var action, after, callback, handleAction, id;
           action = dispatch.action, after = dispatch.after, callback = dispatch.callback;
           assert(!_this._storeImpl.dispatcherIdsByAction[action.id], "Store " + _this.displayName + " registered two callbacks for action " + action.displayName);
           if (typeof callback === 'string') {
             callback = _this._storeImpl[callback];
           }
           callback = callback.bind(_this._storeImpl);
-          id = Hippodrome.Dispatcher.register(_this, action.id, after, callback);
+          handleAction = (function(payload) {
+            this._lastActionId = payload.action;
+            return callback(payload);
+          }).bind(_this._storeImpl);
+          id = Hippodrome.Dispatcher.register(_this, action.id, after, handleAction);
           return _this._storeImpl.dispatcherIdsByAction[action.id] = id;
         };
       })(this));
