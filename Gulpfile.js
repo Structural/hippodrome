@@ -35,6 +35,7 @@ gulp.task('test', ['build'], shell.task([
 
 gulp.task('watch', ['test'], function() {
   gulp.watch('src/**/*.coffee', ['test']);
+  gulp.watch('test/**/*.coffee', ['test']);
 })
 
 gulp.task('set-npm-version', function() {
