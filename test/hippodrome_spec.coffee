@@ -1,6 +1,6 @@
 Hippodrome = require('../dist/hippodrome.js')
 
-describe 'Hippodrome', ->
+xdescribe 'Hippodrome', ->
   beforeEach ->
     @Actions =
       changeName: new Hippodrome.Action 'changeName',
