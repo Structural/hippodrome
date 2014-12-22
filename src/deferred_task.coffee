@@ -6,45 +6,37 @@ makeDeferredFunction = (context, fn) ->
     args = arguments
     setTimeout((() -> fn.apply(context, args)), 1)
 
-DeferredTask = (options) ->
-  @displayName = options.displayName
-
-  assert(options.action or options.dispatches,
-         "Deferred Task #{@displayName} must include either an action key or
-          dispatches list.")
-  # not P or Q is equivalent to P implies Q
+createDeferredTask = (options) ->
+  # not P or Q is the same as P implies Q, i.e., assert fails if P is true
+  # and Q is false.
   assert(not options.action or options.task,
-         "Deferred Task #{@displayName} declared an action, it must declare a
-         task.")
+         "Deferred Task #{options.displayName} declared an action, it must
+          declare a task.")
+  assert(not options.task or options.action,
+         "Deferred Task #{options.displayName} declared a task, it must declare
+          an action.")
 
-  _.assign(this, _.omit(options, 'dispatches', 'action', 'task'), bindToContextIfFunction(this))
+  task = {}
+  _.assign(task,
+           _.omit(options, 'action', 'task'),
+           bindToContextIfFunction(task))
 
-  @_dispatcherIdsByAction = {}
+  task.dispatch = (action) ->
+    to = (callback) ->
+      callback = makeDeferredFunction(task, callback)
+      id = Hippodrome.Dispatcher.register(task, action.id, [], callback)
+      task._dispatcherIdsByAction[action.id] = id
+      return id
+    return {to: to}
+
+  task._dispatcherIdsByAction = {}
 
   if options.initialize
-    options.initialize.call(this)
+    task.dispatch(Hippodrome.start).to(options.initialize)
 
   if options.action and options.task
-    {action, task} = options
+    task.dispatch(options.action).to(options.task)
 
-    task = makeDeferredFunction(this, task)
-    id = Hippodrome.Dispatcher.register(this, action.id, [], task)
+  return task
 
-    @_dispatcherIdsByAction[action.id] = id
-
-  if options.dispatches
-    _.forEach(options.dispatches, (dispatch) =>
-      {action, callback} = dispatch
-
-      assert(not @_dispatcherIdsByAction[action.id],
-             "Deferred Task #{@displayName} registered two callbacks for the
-              action #{action.displayName}.")
-
-      callback = makeDeferredFunction(this, callback)
-      id = Hippodrome.Dispatcher.register(this, action.id, [], callback)
-      @_dispatcherIdsByAction[action.id] = id
-    )
-
-  this
-
-Hippodrome.DeferredTask = DeferredTask
+Hippodrome.createDeferredTask = createDeferredTask

@@ -17,6 +17,7 @@ gulp.task('build', function() {
     './src/dispatcher.coffee',
     './src/deferred_task.coffee',
     './src/store.coffee',
+    './src/startup.coffee',
     './src/export.coffee'
   ]
 
