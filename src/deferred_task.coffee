@@ -18,7 +18,7 @@ createDeferredTask = (options) ->
 
   task = {}
   _.assign(task,
-           _.omit(options, 'action', 'task'),
+           _.omit(options, 'initialize', 'action', 'task'),
            bindToContextIfFunction(task))
 
   task.dispatch = (action) ->
