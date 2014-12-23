@@ -2,17 +2,17 @@ Hippodrome = require('../dist/hippodrome.js')
 
 # Deferred Tasks run their callbacks outside the call stack that triggers them,
 # so we have to do some awkwardness to test them.  In theory a callback could
-# run more than 100 ms after it's been triggered, but in practice this works.
+# run more than 1 ms after it's been triggered, but in practice this works.
 deferredExpect = (expect, done) ->
   test = ->
     expect()
     done()
 
-  setTimeout(test, 100)
+  setTimeout(test, 1)
 
 describe 'Deferred Tasks', ->
   it 'run a task for the action declared in options', (done) ->
-    action = new Hippodrome.Action('run', -> {})
+    action = new Hippodrome.createAction(build: -> {})
     task = Hippodrome.createDeferredTask
       ran: false
       action: action
@@ -23,7 +23,7 @@ describe 'Deferred Tasks', ->
     deferredExpect((-> expect(task.ran).toBe(true)), done)
 
   it 'run a task with payload data', (done) ->
-    action = new Hippodrome.Action('data', (x) -> {x: x})
+    action = new Hippodrome.createAction(build: (x) -> {x: x})
     task = Hippodrome.createDeferredTask
       value: 0
       action: action
@@ -34,7 +34,7 @@ describe 'Deferred Tasks', ->
     deferredExpect((-> expect(task.value).toBe(25)), done)
 
   it 'run a task declared as a string', (done) ->
-    action = new Hippodrome.Action('run', -> {})
+    action = new Hippodrome.createAction(build: -> {})
     task = Hippodrome.createDeferredTask
       ran: false
       action: action
@@ -56,7 +56,7 @@ describe 'Deferred Tasks', ->
     deferredExpect((-> expect(task.ran).toBe(true)), done)
 
   it 'call other task functions inside callbacks', (done) ->
-    action = new Hippodrome.Action('run', -> {})
+    action = new Hippodrome.createAction(build: -> {})
     task = Hippodrome.createDeferredTask
       ran: false
       action: action
@@ -68,7 +68,7 @@ describe 'Deferred Tasks', ->
     deferredExpect((-> expect(task.ran).toBe(true)), done)
 
   it 'register for actions in initialize', (done) ->
-    action = new Hippodrome.Action('run', -> {})
+    action = new Hippodrome.createAction(build: -> {})
     task = Hippodrome.createDeferredTask
       ran: false
       initialize: ->
@@ -79,10 +79,10 @@ describe 'Deferred Tasks', ->
     setTimeout((->
       action()
       deferredExpect((-> expect(task.ran).toBe(true)), done)
-    ), 100)
+    ), 1)
 
   it 'register for the same task more than once', (done) ->
-    action = new Hippodrome.Action('data', (x) -> {x: x})
+    action = new Hippodrome.createAction(build: (x) -> {x: x})
     task = Hippodrome.createDeferredTask
       y: 0
       z: 0
@@ -95,11 +95,11 @@ describe 'Deferred Tasks', ->
       action(5)
       deferredExpect((-> expect(task.y).toBe(6)), ->)
       deferredExpect((-> expect(task.z).toBe(10)), done)
-    ), 100)
+    ), 1)
 
   it 'fail to create with an action and no task', ->
     options =
-      action: new Hippodrome.Action('a', -> {})
+      action: new Hippodrome.createAction(build: -> {})
 
     create = ->
       Hippodrome.createDeferredTask(options)

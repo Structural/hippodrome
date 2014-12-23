@@ -1,27 +1,25 @@
 actionIds = new IdFactory('Action_ID')
 
-Action = (name, ctor) ->
-  id = "#{actionIds.next()}_#{name}"
+createAction = (options) ->
+  assert(options.build instanceof Function,
+         "Action #{options.displayName} did not define a build function.")
+
+  id = "#{actionIds.next()}_#{options.displayName}"
 
   buildPayload = ->
-    payload = ctor.apply(null, arguments)
+    payload = options.build.apply(null, arguments)
     payload.action = id
-    payload
+    return payload
 
-  send = (payload) ->
+  action = ->
+    payload = buildPayload.apply(null, arguments)
     Hippodrome.Dispatcher.dispatch(payload)
 
-  actionFn = ->
-    payload = buildPayload.apply(null, arguments)
-    send(payload)
+  action.buildPayload = buildPayload
+  action.displayName = options.displayName
+  action.id = id
+  action.toString = -> id
 
-  actionFn.buildPayload = buildPayload
-  actionFn.send = send
+  return action
 
-  actionFn.displayName = name
-  actionFn.id = id
-  actionFn.toString = -> id
-
-  actionFn
-
-Hippodrome.Action = Action
+Hippodrome.createAction = createAction
