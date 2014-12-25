@@ -34,7 +34,7 @@ gulp.task('test', ['build'], shell.task([
   'npm run test'
 ]))
 
-gulp.task('watch', ['test'], function() {
+gulp.task('watch', [], function() {
   gulp.watch('src/**/*.coffee', ['test']);
   gulp.watch('test/**/*.coffee', ['test']);
 })
