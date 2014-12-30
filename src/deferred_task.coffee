@@ -24,7 +24,7 @@ createDeferredTask = (options) ->
   task.dispatch = (action) ->
     to = (callback) ->
       callback = makeDeferredFunction(task, callback)
-      id = Hippodrome.Dispatcher.register(task, action.id, [], callback)
+      id = Hippodrome.Dispatcher.register(action.id, callback)
       task._dispatcherIdsByAction[action.id] = id
       return id
     return {to: to}

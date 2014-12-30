@@ -1,81 +1,77 @@
-Dispatcher = ->
-  @_callbacksByAction = {}
-  @_isStarted = {}
-  @_isFinished = {}
-  @_isDispatching = false
-  @_payload = null
-
 dispatcherIds = new IdFactory('Dispatcher_ID')
 
-Dispatcher::register = ->
-  args = _.compact(arguments)
+createDispatcher = () ->
+  dispatcher =
+    _callbacksByAction: {}
+    _isStarted: {}
+    _isFinished: {}
+    _isDispatching: false
+    _payload: null
 
-  if args.length == 3
-    @register(args[0], args[1], [], args[2])
-  else
-    [store, action, prereqStores, callback] = args
+  dispatcher.register = (action, callback, prerequisites=[]) ->
     @_callbacksByAction[action] ?= {}
 
     id = dispatcherIds.next()
     @_callbacksByAction[action][id] = {
-      callback: callback,
-      prerequisites: _.map(prereqStores,
-                           (ps) -> ps._storeImpl.dispatcherIdsByAction[action])
+      callback: callback
+      prerequisites: _.map(prerequisites,
+                           (pr) -> pr._storeImpl.dispatcherIdsByAction[action])
     }
-    id
 
-Dispatcher::unregister = (action, id) ->
-  assert(@_callbacksByAction[action][id],
-         'Dispatcher.unregister(%s, %s) does not map to a registered callback.',
-         action.displayName, id)
-  @_callbacksByAction[action][id] = null
+    return id
 
-Dispatcher::waitFor = (action, ids) ->
-  assert(@_isDispatching,
-         'Dispatcher.waitFor must be invoked while dispatching.')
-  _.forEach(ids, (id) =>
-    if @_isStarted[id]
-      assert(@_isFinished[id],
-             'Dispatcher.waitFor encountered circular dependency while ' +
-             'waiting for `%s` during %s.', id, action.displayName)
-      return
+  dispatcher.unregister = (action, id) ->
+    assert(@_callbacksByAction and @_callbacksByAction[action][id],
+           "Dispatcher.unregister(#{action.displayName}, #{id}) does not map
+            to a registered callback.")
+    @_callbacksByAction[action][id] = null
 
-    assert(@_callbacksByAction[action][id],
-           'Dispatcher.waitFor `%s` is not a registered callback for %s.',
-           id, action.displayName)
-    @invokeCallback(action, id)
-  )
-
-Dispatcher::dispatch = (payload) ->
-  assert(not @_isDispatching,
-         'Dispatch.dispatch cannot be called during dispatch.')
-  @startDispatching(payload)
-  try
-    action = payload.action
-    _.forEach(@_callbacksByAction[action], (callback, id) =>
+  dispatcher.waitFor = (action, ids) ->
+    assert(@_isDispatching
+           "Dispatcher.waitFor must be called while dispatching.")
+    _.forEach ids, (id) =>
       if @_isStarted[id]
+        assert(@_isFinished[id],
+               "Dispatcher.waitFor encountered circular dependency trying to
+                wait for #{id} during action #{action.displayName}.")
         return
 
+      assert(@_callbacksByAction[action][id]
+             "Dispatcher.waitFor #{id} is not a registered callback for
+              #{action.displayName}.")
       @invokeCallback(action, id)
-    )
-  finally
-    @stopDispatching()
 
-Dispatcher::invokeCallback = (action, id) ->
-  @_isStarted[id] = true
-  {callback, prerequisites} = @_callbacksByAction[action][id]
-  @waitFor(action, prerequisites)
-  callback(@_payload)
-  @_isFinished[id] = true
+  dispatcher.dispatch = (payload) ->
+    assert(not @_isDispatching,
+           "Dispatcher.dispatch cannot be called during dispatch.")
+    @startDispatching(payload)
+    try
+      action = payload.action
+      _.forEach @_callbacksByAction[action], (callback, id) =>
+        if @_isStarted[id]
+          return
 
-Dispatcher::startDispatching = (payload) ->
-  @_isStarted = {}
-  @_isFinished = {}
-  @_payload = payload
-  @_isDispatching = true
+        @invokeCallback(action, id)
+    finally
+      @stopDispatching()
 
-Dispatcher::stopDispatching = ->
-  @_payload = null
-  @_isDispatching = false
+  dispatcher.invokeCallback = (action, id) ->
+    @_isStarted[id] = true
+    {callback, prerequisites} = @_callbacksByAction[action][id]
+    @waitFor(action, prerequisites)
+    callback(@_payload)
+    @_isFinished[id] = true
 
-Hippodrome.Dispatcher = new Dispatcher()
+  dispatcher.startDispatching = (payload) ->
+    @_isStarted = {}
+    @_isFinished = {}
+    @_payload = payload
+    @_isDispatching = true
+
+  dispatcher.stopDispatching = ->
+    @_payload = null
+    @_isDispatching = false
+
+  return dispatcher
+
+Hippodrome.Dispatcher = createDispatcher()
