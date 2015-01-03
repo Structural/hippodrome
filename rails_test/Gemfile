@@ -4,3 +4,4 @@ gem 'rails', '4.1.6'
 gem 'sqlite3'
 
 gem 'hippodrome', :path => '../rails'
+gem 'react-rails', '~> 1.0.0.pre', github: 'reactjs/react-rails'
