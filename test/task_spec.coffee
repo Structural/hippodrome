@@ -81,7 +81,7 @@ describe 'Deferred Tasks', ->
       deferredExpect((-> expect(task.ran).toBe(true)), done)
     ), 1)
 
-  it 'register for the same task more than once', (done) ->
+  it 'register for the same action more than once', (done) ->
     action = new Hippodrome.createAction(build: (x) -> {x: x})
     task = Hippodrome.createDeferredTask
       y: 0

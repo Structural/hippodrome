@@ -5,60 +5,78 @@ bindToContextIfFunction = (context) ->
     else
       srcValue
 
-Store = (options) ->
-  @_storeImpl = {
+makeToFn = (context, action, prerequisites=[]) ->
+  (callback) ->
+    if typeof callback == 'string'
+      callback = context[callback]
+    callback = callback.bind(context)
+
+    id = Hippodrome.Dispatcher.register(action.id, callback, prerequisites)
+    context.dispatcherIdsByAction[action] = id
+
+createStore = (options) ->
+  storeImpl = {
+    dispatcherIdsByAction: {}
+    callbacks: []
     trigger: -> _.each(@callbacks, (callback) -> callback())
+    dispatch: (action) ->
+      context = this
+      after = () ->
+        prerequisites = arguments
+        return {to: makeToFn(context, action, prerequisites)}
+
+      return {after: after, to: makeToFn(context, action)}
   }
-  @_storeImpl.dispatcherIdsByAction = {}
-  @_storeImpl.callbacks = []
-  _.assign(@_storeImpl, _.omit(options, 'initialize', 'dispatches', 'public'), bindToContextIfFunction(@_storeImpl))
+  store = {
+    _storeImpl: storeImpl
+    displayName: options.displayName
+
+    register: (callback) ->
+      @_storeImpl.callbacks.push(callback)
+    unregister: (callback) ->
+      _.remove(@_storeImpl.callbacks, (cb) -> cb == callback)
+
+    listen: (property, fn) ->
+      store = this
+      getState = () ->
+        state = {}
+        state[property] = fn()
+        return state
+      callback = () ->
+        @setState(getState())
+      return {
+        getInitialState: ->
+          getState()
+        componentDidMount: ->
+          store.register(callback)
+        componentWillUnmount: ->
+          store.unregister(callback)
+      }
+    listenWith: (stateFnName) ->
+      store = this
+      callback = () ->
+        @setState(this[stateFnName]())
+      return {
+        getInitialState: ->
+          this[stateFnName]()
+        componentDidMount: ->
+          store.register(callback)
+        componentWillUnmount: ->
+          store.unregister(callback)
+      }
+  }
+
+  _.assign(storeImpl,
+           _.omit(options, 'initialize', 'public'),
+           bindToContextIfFunction(storeImpl))
 
   if options.public
-    _.assign(this, options.public, bindToContextIfFunction(@_storeImpl))
-    _.assign(@_storeImpl, options.public, bindToContextIfFunction(@_storeImpl))
-  @displayName = options.displayName
-  @lastActionId = () => @_storeImpl._lastActionId
+    _.assign(store, options.public, bindToContextIfFunction(storeImpl))
+    _.assign(storeImpl, options.public, bindToContextIfFunction(storeImpl))
 
   if options.initialize
-    options.initialize.call(@_storeImpl)
+    storeImpl.dispatch(Hippodrome.start).to(options.initialize)
 
-  if options.dispatches
-    _.forEach options.dispatches, (dispatch) =>
-      {action, after, callback} = dispatch
+  return store
 
-      assert(not @_storeImpl.dispatcherIdsByAction[action.id],
-             "Store #{@displayName} registered two callbacks for action #{action.displayName}")
-
-      if typeof callback == 'string'
-        callback = @_storeImpl[callback]
-      callback = callback.bind(@_storeImpl)
-      handleAction = ((payload) ->
-        @_lastActionId = payload.action
-        callback(payload)
-      ).bind(@_storeImpl)
-
-      id = Hippodrome.Dispatcher.register(this, action.id, after, handleAction)
-      @_storeImpl.dispatcherIdsByAction[action.id] = id
-
-  this
-
-Store::register = (callback) ->
-  @_storeImpl.callbacks.push(callback)
-
-Store::unregister = (callback) ->
-  @_storeImpl.callbacks = _.reject(@_storeImpl.callbacks, (cb) -> cb == callback)
-
-# register/unregister are general purpose, this is tailored for React mixins.
-Store::listen = (callbackName) ->
-  store = this
-  return {
-    componentDidMount: ->
-      store.register(this[callbackName])
-    componentWillUnmount: ->
-      store.unregister(this[callbackName])
-  }
-
-Store::trigger = ->
-  @_storeImpl.trigger()
-
-Hippodrome.Store = Store
+Hippodrome.createStore = createStore
