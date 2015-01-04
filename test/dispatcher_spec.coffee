@@ -6,7 +6,7 @@ describe 'Dispatcher', ->
     fn = () -> ran = true
     Hippodrome.Dispatcher.register('test1', fn)
 
-    Hippodrome.Dispatcher.dispatch({action: 'test1'})
+    Hippodrome.Dispatcher.dispatch({_action: 'test1'})
 
     expect(ran).toBe(true)
 
@@ -16,7 +16,7 @@ describe 'Dispatcher', ->
     id = Hippodrome.Dispatcher.register('test2', fn)
     Hippodrome.Dispatcher.unregister('test2', id)
 
-    Hippodrome.Dispatcher.dispatch({actioN: 'test2'})
+    Hippodrome.Dispatcher.dispatch({_action: 'test2'})
 
     expect(ran).toBe(false)
 
@@ -27,10 +27,10 @@ describe 'Dispatcher', ->
     expect(test).toThrow()
 
   it 'fails to dispatch while already dispatching', ->
-    fn = () -> Hippodrome.Dispatcher.dispatch({action: 'test5'})
+    fn = () -> Hippodrome.Dispatcher.dispatch({_action: 'test5'})
     Hippodrome.Dispatcher.register('test4', fn)
     test = ->
-      Hippodrome.Dispatcher.dispatch({action: 'test4'})
+      Hippodrome.Dispatcher.dispatch({_action: 'test4'})
 
     expect(test).toThrow()
 

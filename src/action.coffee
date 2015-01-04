@@ -8,7 +8,7 @@ createAction = (options) ->
 
   buildPayload = ->
     payload = options.build.apply(null, arguments)
-    payload.action = id
+    payload._action = id
     return payload
 
   action = ->

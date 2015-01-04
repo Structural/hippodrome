@@ -24,7 +24,7 @@ createDispatcher = () ->
     assert(@_callbacksByAction and @_callbacksByAction[action][id],
            "Dispatcher.unregister(#{action.displayName}, #{id}) does not map
             to a registered callback.")
-    @_callbacksByAction[action][id] = null
+    delete @_callbacksByAction[action][id]
 
   dispatcher.waitFor = (action, ids) ->
     assert(@_isDispatching
@@ -46,7 +46,7 @@ createDispatcher = () ->
            "Dispatcher.dispatch cannot be called during dispatch.")
     @startDispatching(payload)
     try
-      action = payload.action
+      action = payload._action
       _.forEach @_callbacksByAction[action], (callback, id) =>
         if @_isStarted[id]
           return

@@ -32,7 +32,7 @@ describe 'Actions', ->
         x: x
 
     payload =
-      action: action.id
+      _action: action.id
       x: 5
 
     expect(action.buildPayload(5)).toEqual(payload)
