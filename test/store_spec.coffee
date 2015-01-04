@@ -1,8 +1,29 @@
 Hippodrome = require('../dist/hippodrome')
+_ = require('lodash')
+
+# This is annoying, but because the Dispatcher is a single instance across all
+# tests, stores created in one test still have their callbacks registered in
+# subsequent tests, unless we get rid of them like this.
+unregisterStore = (store) ->
+  _.forEach store._storeImpl.dispatcherIdsByAction, (id, action) ->
+    Hippodrome.Dispatcher.unregister(action, id)
 
 describe 'Stores', ->
+  tempStores = []
+
+  makeTempStore = (options) ->
+    store = Hippodrome.createStore(options)
+    tempStores.push(store)
+    return store
+
+  beforeEach ->
+    tempStores = []
+
+  afterEach ->
+    _.forEach tempStores, unregisterStore
+
   it 'don\'t expose properties not in public', ->
-    store = Hippodrome.createStore
+    store = makeTempStore
       propOne: 'one'
 
       public:
@@ -12,7 +33,7 @@ describe 'Stores', ->
     expect(store.propTwo).toBe('two')
 
   it 'functions in public have access to non-public properties', ->
-    store = Hippodrome.createStore
+    store = makeTempStore
       prop: 'value'
 
       public:
@@ -21,7 +42,7 @@ describe 'Stores', ->
     expect(store.fn()).toBe('My Property Is: value')
 
   it 'run registered functions on trigger', ->
-    store = Hippodrome.createStore
+    store = makeTempStore
       public:
         doTrigger: () -> @trigger()
 
@@ -32,7 +53,7 @@ describe 'Stores', ->
     expect(ran).toBe(true)
 
   it 'don\'t run unregistered functions on trigger', ->
-    store = Hippodrome.createStore
+    store = makeTempStore
       public:
         doTrigger: () -> @trigger()
 
@@ -45,7 +66,7 @@ describe 'Stores', ->
     expect(ran).toBe(false)
 
   it 'run initialize on Hippodrome start', ->
-    store = Hippodrome.createStore
+    store = makeTempStore
       initialize: ->
         @ran = true
 
@@ -73,7 +94,7 @@ describe 'Stores', ->
       displayName: 'test1'
       build: -> {}
 
-    store = Hippodrome.createStore
+    store = makeTempStore
       initialize: ->
         @dispatch(action).to(@doAction)
 
@@ -94,7 +115,7 @@ describe 'Stores', ->
       displayName: 'test2'
       build: -> {}
 
-    store = Hippodrome.createStore
+    store = makeTempStore
       initialize: ->
         @dispatch(action).to('doAction')
 
@@ -115,7 +136,7 @@ describe 'Stores', ->
       displayName: 'test3'
       build: (n) -> {n: n}
 
-    store = Hippodrome.createStore
+    store = makeTempStore
       initialize: ->
         @dispatch(action).to(@doAction)
 
@@ -136,7 +157,7 @@ describe 'Stores', ->
       displayName: 'test4'
       build: (n) -> {n: n}
 
-    first = Hippodrome.createStore
+    first = makeTempStore
       initialize: ->
         @dispatch(action).to(@doAction)
 
@@ -147,7 +168,7 @@ describe 'Stores', ->
       public:
         value: () -> @x
 
-    second = Hippodrome.createStore
+    second = makeTempStore
       initialize: ->
         @dispatch(action).after(first).to(@doAction)
 
@@ -168,21 +189,21 @@ describe 'Stores', ->
     action = Hippodrome.createAction
       build: -> {}
 
-    one = Hippodrome.createStore
+    one = makeTempStore
       initialize: ->
         @dispatch(action).after(three).to(@doAction)
 
       doAction: (payload) ->
         @ran = true
 
-    two = Hippodrome.createStore
+    two = makeTempStore
       initialize: ->
         @dispatch(action).after(one).to(@doAction)
 
       doAction: (payload) ->
         @ran = true
 
-    three = Hippodrome.createStore
+    three = makeTempStore
       initialize: ->
         @dispatch(action).after(two).to(@doAction)
 
@@ -196,10 +217,10 @@ describe 'Stores', ->
     action = Hippodrome.createAction
       build: -> {}
 
-    one = Hippodrome.createStore
+    one = makeTempStore
       displayName: 'one'
 
-    two = Hippodrome.createStore
+    two = makeTempStore
       initialize: ->
         @dispatch(action).after(one).to(@doAction)
 
@@ -208,3 +229,14 @@ describe 'Stores', ->
 
     Hippodrome.start()
     expect(action).toThrow()
+
+  it 'fail when registering for same action more than once', ->
+    action = Hippodrome.createAction
+      build: -> {}
+
+    store = makeTempStore
+      initialize: ->
+        @dispatch(action).to(->)
+        @dispatch(action).to(->)
+
+    expect(Hippodrome.start).toThrow()

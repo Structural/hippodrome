@@ -81,21 +81,19 @@ describe 'Deferred Tasks', ->
       deferredExpect((-> expect(task.ran).toBe(true)), done)
     ), 1)
 
-  it 'register for the same action more than once', (done) ->
-    action = new Hippodrome.createAction(build: (x) -> {x: x})
-    task = Hippodrome.createDeferredTask
-      y: 0
-      z: 0
-      initialize: ->
-        @dispatch(action).to((payload) -> @y = payload.x + 1)
-        @dispatch(action).to((payload) -> @z = payload.x * 2)
+  it 'fail to register for the same action more than once', ->
+    action = new Hippodrome.createAction
+      displayName: 'double Action'
+      build: (x) -> {x: x}
 
-    Hippodrome.start()
-    setTimeout((->
-      action(5)
-      deferredExpect((-> expect(task.y).toBe(6)), ->)
-      deferredExpect((-> expect(task.z).toBe(10)), done)
-    ), 1)
+    task = Hippodrome.createDeferredTask
+      displayName: 'double Task'
+
+    register = ->
+      task.dispatch(action).to(->)
+
+    register()
+    expect(register).toThrow()
 
   it 'fail to create with an action and no task', ->
     options =

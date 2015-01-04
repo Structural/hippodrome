@@ -20,6 +20,10 @@ createStore = (options) ->
     callbacks: []
     trigger: -> _.each(@callbacks, (callback) -> callback())
     dispatch: (action) ->
+      assert(@dispatcherIdsByAction[action] == undefined,
+             "Store #{@displayName} attempted to register twice for action
+              #{action.displayName}.")
+
       context = this
       after = () ->
         prerequisites = arguments

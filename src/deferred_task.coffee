@@ -22,6 +22,10 @@ createDeferredTask = (options) ->
            bindToContextIfFunction(task))
 
   task.dispatch = (action) ->
+    assert(task._dispatcherIdsByAction[action.id] == undefined,
+           "Deferred Task #{task.displayName} attempted to register twice for
+            action #{action.displayName}.")
+
     to = (callback) ->
       callback = makeDeferredFunction(task, callback)
       id = Hippodrome.Dispatcher.register(action.id, callback)
