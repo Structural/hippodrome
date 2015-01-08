@@ -1,6 +1,6 @@
 {
   "name": "hippodrome",
-  "version": "0.1.8",
+  "version": "0.2.0",
   "description": "This package.json is just to build the source files.  The one that actually gets published to npm is at npm/package.json.",
   "scripts": {
     "test": "jasmine-node --coffee --verbose test",
