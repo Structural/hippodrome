@@ -285,6 +285,8 @@ Hippodrome's own invention, are more speculative.  We expect them to change
 as we understand more of what we need out of them, and out of the system as a
 whole.
 
+## Starting Hippodrome
+
 Start your Hippodrome app like this:
 
 ```
