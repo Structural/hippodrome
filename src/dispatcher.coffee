@@ -14,8 +14,7 @@ createDispatcher = () ->
     id = dispatcherIds.next()
     @_callbacksByAction[action][id] = {
       callback: callback
-      prerequisites: _.map(prerequisites,
-                           (pr) -> pr._storeImpl.dispatcherIdsByAction[action])
+      prerequisites: prerequisites
     }
 
     return id
@@ -26,10 +25,11 @@ createDispatcher = () ->
             to a registered callback.")
     delete @_callbacksByAction[action][id]
 
-  dispatcher.waitFor = (action, ids) ->
+  dispatcher.waitFor = (action, stores) ->
     assert(@_isDispatching
            "Dispatcher.waitFor must be called while dispatching.")
-    _.forEach ids, (id) =>
+    _.forEach stores, (store) =>
+      id = store._storeImpl.dispatcherIdsByAction[action]
       if @_isStarted[id]
         assert(@_isFinished[id],
                "Dispatcher.waitFor encountered circular dependency trying to

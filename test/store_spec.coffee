@@ -185,6 +185,39 @@ describe 'Stores', ->
     expect(first.value()).toBe(25)
     expect(second.value()).toBe(30)
 
+  it 'run callbacks after other stores no matter declaration order', ->
+    action = Hippodrome.createAction
+      displayName: 'test8'
+      build: (n) -> {n: n}
+
+    second = makeTempStore
+      initialize: ->
+        @x = 0
+        @dispatch(action).after(first).to(@doAction)
+
+      doAction: (payload) ->
+        @x = payload.n + first.value()
+
+      public:
+        value: () -> @x
+
+    first = makeTempStore
+      initialize: ->
+        @x = 0
+        @dispatch(action).to(@doAction)
+
+      doAction: (payload) ->
+        @x = payload.n * 2
+
+      public:
+        value: () -> @x
+
+    Hippodrome.start()
+    action(3)
+
+    expect(first.value()).toBe(6)
+    expect(second.value()).toBe(9)
+
   it 'fail when stores create a circular dependency', ->
     action = Hippodrome.createAction
       build: -> {}
