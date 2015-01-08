@@ -1,5 +1,5 @@
 (function() {
-  var Action, DeferredTask, Dispatcher, Hippodrome, IdFactory, Store, actionIds, assert, bindToContextIfFunction, dispatcherIds, isNode, makeDeferredFunction, _,
+  var Hippodrome, IdFactory, actionIds, assert, bindToContextIfFunction, createAction, createDeferredTask, createDispatcher, createStore, dispatcherIds, isNode, makeDeferredFunction, makeToFn, _,
     __slice = [].slice;
 
   isNode = typeof window === 'undefined';
@@ -37,126 +37,117 @@
 
   actionIds = new IdFactory('Action_ID');
 
-  Action = function(name, ctor) {
-    var actionFn, buildPayload, id, send;
-    id = "" + (actionIds.next()) + "_" + name;
+  createAction = function(options) {
+    var action, buildPayload, id;
+    assert(options.build instanceof Function, "Action " + options.displayName + " did not define a build function.");
+    id = "" + (actionIds.next()) + "_" + options.displayName;
     buildPayload = function() {
       var payload;
-      payload = ctor.apply(null, arguments);
-      payload.action = id;
+      payload = options.build.apply(null, arguments);
+      payload._action = id;
       return payload;
     };
-    send = function(payload) {
-      return Hippodrome.Dispatcher.dispatch(payload);
-    };
-    actionFn = function() {
+    action = function() {
       var payload;
       payload = buildPayload.apply(null, arguments);
-      return send(payload);
+      return Hippodrome.Dispatcher.dispatch(payload);
     };
-    actionFn.buildPayload = buildPayload;
-    actionFn.send = send;
-    actionFn.displayName = name;
-    actionFn.id = id;
-    actionFn.toString = function() {
+    action.buildPayload = buildPayload;
+    action.displayName = options.displayName;
+    action.id = id;
+    action.toString = function() {
       return id;
     };
-    return actionFn;
+    return action;
   };
 
-  Hippodrome.Action = Action;
-
-  Dispatcher = function() {
-    this._callbacksByAction = {};
-    this._isStarted = {};
-    this._isFinished = {};
-    this._isDispatching = false;
-    return this._payload = null;
-  };
+  Hippodrome.createAction = createAction;
 
   dispatcherIds = new IdFactory('Dispatcher_ID');
 
-  Dispatcher.prototype.register = function() {
-    var action, args, callback, id, prereqStores, store, _base;
-    args = _.compact(arguments);
-    if (args.length === 3) {
-      return this.register(args[0], args[1], [], args[2]);
-    } else {
-      store = args[0], action = args[1], prereqStores = args[2], callback = args[3];
+  createDispatcher = function() {
+    var dispatcher;
+    dispatcher = {
+      _callbacksByAction: {},
+      _isStarted: {},
+      _isFinished: {},
+      _isDispatching: false,
+      _payload: null
+    };
+    dispatcher.register = function(action, callback, prerequisites) {
+      var id, _base;
+      if (prerequisites == null) {
+        prerequisites = [];
+      }
       if ((_base = this._callbacksByAction)[action] == null) {
         _base[action] = {};
       }
       id = dispatcherIds.next();
       this._callbacksByAction[action][id] = {
         callback: callback,
-        prerequisites: _.map(prereqStores, function(ps) {
-          return ps._storeImpl.dispatcherIdsByAction[action];
-        })
+        prerequisites: prerequisites
       };
       return id;
-    }
-  };
-
-  Dispatcher.prototype.unregister = function(action, id) {
-    assert(this._callbacksByAction[action][id], 'Dispatcher.unregister(%s, %s) does not map to a registered callback.', action.displayName, id);
-    return this._callbacksByAction[action][id] = null;
-  };
-
-  Dispatcher.prototype.waitFor = function(action, ids) {
-    assert(this._isDispatching, 'Dispatcher.waitFor must be invoked while dispatching.');
-    return _.forEach(ids, (function(_this) {
-      return function(id) {
-        if (_this._isStarted[id]) {
-          assert(_this._isFinished[id], 'Dispatcher.waitFor encountered circular dependency while ' + 'waiting for `%s` during %s.', id, action.displayName);
-          return;
-        }
-        assert(_this._callbacksByAction[action][id], 'Dispatcher.waitFor `%s` is not a registered callback for %s.', id, action.displayName);
-        return _this.invokeCallback(action, id);
-      };
-    })(this));
-  };
-
-  Dispatcher.prototype.dispatch = function(payload) {
-    var action;
-    assert(!this._isDispatching, 'Dispatch.dispatch cannot be called during dispatch.');
-    this.startDispatching(payload);
-    try {
-      action = payload.action;
-      return _.forEach(this._callbacksByAction[action], (function(_this) {
-        return function(callback, id) {
+    };
+    dispatcher.unregister = function(action, id) {
+      assert(this._callbacksByAction && this._callbacksByAction[action][id], "Dispatcher.unregister(" + action.displayName + ", " + id + ") does not map to a registered callback.");
+      return delete this._callbacksByAction[action][id];
+    };
+    dispatcher.waitFor = function(action, stores) {
+      assert(this._isDispatching, "Dispatcher.waitFor must be called while dispatching.");
+      return _.forEach(stores, (function(_this) {
+        return function(store) {
+          var id;
+          id = store._storeImpl.dispatcherIdsByAction[action];
           if (_this._isStarted[id]) {
+            assert(_this._isFinished[id], "Dispatcher.waitFor encountered circular dependency trying to wait for " + id + " during action " + action.displayName + ".");
             return;
           }
+          assert(_this._callbacksByAction[action][id], "Dispatcher.waitFor " + id + " is not a registered callback for " + action.displayName + ".");
           return _this.invokeCallback(action, id);
         };
       })(this));
-    } finally {
-      this.stopDispatching();
-    }
+    };
+    dispatcher.dispatch = function(payload) {
+      var action;
+      assert(!this._isDispatching, "Dispatcher.dispatch cannot be called during dispatch.");
+      this.startDispatching(payload);
+      try {
+        action = payload._action;
+        return _.forEach(this._callbacksByAction[action], (function(_this) {
+          return function(callback, id) {
+            if (_this._isStarted[id]) {
+              return;
+            }
+            return _this.invokeCallback(action, id);
+          };
+        })(this));
+      } finally {
+        this.stopDispatching();
+      }
+    };
+    dispatcher.invokeCallback = function(action, id) {
+      var callback, prerequisites, _ref;
+      this._isStarted[id] = true;
+      _ref = this._callbacksByAction[action][id], callback = _ref.callback, prerequisites = _ref.prerequisites;
+      this.waitFor(action, prerequisites);
+      callback(this._payload);
+      return this._isFinished[id] = true;
+    };
+    dispatcher.startDispatching = function(payload) {
+      this._isStarted = {};
+      this._isFinished = {};
+      this._payload = payload;
+      return this._isDispatching = true;
+    };
+    dispatcher.stopDispatching = function() {
+      this._payload = null;
+      return this._isDispatching = false;
+    };
+    return dispatcher;
   };
 
-  Dispatcher.prototype.invokeCallback = function(action, id) {
-    var callback, prerequisites, _ref;
-    this._isStarted[id] = true;
-    _ref = this._callbacksByAction[action][id], callback = _ref.callback, prerequisites = _ref.prerequisites;
-    this.waitFor(action, prerequisites);
-    callback(this._payload);
-    return this._isFinished[id] = true;
-  };
-
-  Dispatcher.prototype.startDispatching = function(payload) {
-    this._isStarted = {};
-    this._isFinished = {};
-    this._payload = payload;
-    return this._isDispatching = true;
-  };
-
-  Dispatcher.prototype.stopDispatching = function() {
-    this._payload = null;
-    return this._isDispatching = false;
-  };
-
-  Hippodrome.Dispatcher = new Dispatcher();
+  Hippodrome.Dispatcher = createDispatcher();
 
   makeDeferredFunction = function(context, fn) {
     if (typeof fn === 'string') {
@@ -171,38 +162,37 @@
     };
   };
 
-  DeferredTask = function(options) {
-    var action, id, task;
-    this.displayName = options.displayName;
-    assert(options.action || options.dispatches, "Deferred Task " + this.displayName + " must include either an action key or dispatches list.");
-    assert(!options.action || options.task, "Deferred Task " + this.displayName + " declared an action, it must declare a task.");
-    _.assign(this, _.omit(options, 'dispatches', 'action', 'task'), bindToContextIfFunction(this));
-    this._dispatcherIdsByAction = {};
+  createDeferredTask = function(options) {
+    var task;
+    assert(!options.action || options.task, "Deferred Task " + options.displayName + " declared an action, it must declare a task.");
+    assert(!options.task || options.action, "Deferred Task " + options.displayName + " declared a task, it must declare an action.");
+    task = {};
+    _.assign(task, _.omit(options, 'initialize', 'action', 'task'), bindToContextIfFunction(task));
+    task.dispatch = function(action) {
+      var to;
+      assert(task._dispatcherIdsByAction[action.id] === void 0, "Deferred Task " + task.displayName + " attempted to register twice for action " + action.displayName + ".");
+      to = function(callback) {
+        var id;
+        callback = makeDeferredFunction(task, callback);
+        id = Hippodrome.Dispatcher.register(action.id, callback);
+        task._dispatcherIdsByAction[action.id] = id;
+        return id;
+      };
+      return {
+        to: to
+      };
+    };
+    task._dispatcherIdsByAction = {};
     if (options.initialize) {
-      options.initialize.call(this);
+      task.dispatch(Hippodrome.start).to(options.initialize);
     }
     if (options.action && options.task) {
-      action = options.action, task = options.task;
-      task = makeDeferredFunction(this, task);
-      id = Hippodrome.Dispatcher.register(this, action.id, [], task);
-      this._dispatcherIdsByAction[action.id] = id;
+      task.dispatch(options.action).to(options.task);
     }
-    if (options.dispatches) {
-      _.forEach(options.dispatches, (function(_this) {
-        return function(dispatch) {
-          var callback;
-          action = dispatch.action, callback = dispatch.callback;
-          assert(!_this._dispatcherIdsByAction[action.id], "Deferred Task " + _this.displayName + " registered two callbacks for the action " + action.displayName + ".");
-          callback = makeDeferredFunction(_this, callback);
-          id = Hippodrome.Dispatcher.register(_this, action.id, [], callback);
-          return _this._dispatcherIdsByAction[action.id] = id;
-        };
-      })(this));
-    }
-    return this;
+    return task;
   };
 
-  Hippodrome.DeferredTask = DeferredTask;
+  Hippodrome.createDeferredTask = createDeferredTask;
 
   bindToContextIfFunction = function(context) {
     return function(objValue, srcValue) {
@@ -214,80 +204,123 @@
     };
   };
 
-  Store = function(options) {
-    this._storeImpl = {
+  makeToFn = function(context, action, prerequisites) {
+    if (prerequisites == null) {
+      prerequisites = [];
+    }
+    return function(callback) {
+      var id;
+      if (typeof callback === 'string') {
+        callback = context[callback];
+      }
+      callback = callback.bind(context);
+      id = Hippodrome.Dispatcher.register(action.id, callback, prerequisites);
+      return context.dispatcherIdsByAction[action] = id;
+    };
+  };
+
+  createStore = function(options) {
+    var store, storeImpl;
+    storeImpl = {
+      dispatcherIdsByAction: {},
+      callbacks: [],
       trigger: function() {
         return _.each(this.callbacks, function(callback) {
           return callback();
         });
-      }
-    };
-    this._storeImpl.dispatcherIdsByAction = {};
-    this._storeImpl.callbacks = [];
-    _.assign(this._storeImpl, _.omit(options, 'initialize', 'dispatches', 'public'), bindToContextIfFunction(this._storeImpl));
-    if (options["public"]) {
-      _.assign(this, options["public"], bindToContextIfFunction(this._storeImpl));
-      _.assign(this._storeImpl, options["public"], bindToContextIfFunction(this._storeImpl));
-    }
-    this.displayName = options.displayName;
-    this.lastActionId = (function(_this) {
-      return function() {
-        return _this._storeImpl._lastActionId;
-      };
-    })(this);
-    if (options.initialize) {
-      options.initialize.call(this._storeImpl);
-    }
-    if (options.dispatches) {
-      _.forEach(options.dispatches, (function(_this) {
-        return function(dispatch) {
-          var action, after, callback, handleAction, id;
-          action = dispatch.action, after = dispatch.after, callback = dispatch.callback;
-          assert(!_this._storeImpl.dispatcherIdsByAction[action.id], "Store " + _this.displayName + " registered two callbacks for action " + action.displayName);
-          if (typeof callback === 'string') {
-            callback = _this._storeImpl[callback];
-          }
-          callback = callback.bind(_this._storeImpl);
-          handleAction = (function(payload) {
-            this._lastActionId = payload.action;
-            return callback(payload);
-          }).bind(_this._storeImpl);
-          id = Hippodrome.Dispatcher.register(_this, action.id, after, handleAction);
-          return _this._storeImpl.dispatcherIdsByAction[action.id] = id;
-        };
-      })(this));
-    }
-    return this;
-  };
-
-  Store.prototype.register = function(callback) {
-    return this._storeImpl.callbacks.push(callback);
-  };
-
-  Store.prototype.unregister = function(callback) {
-    return this._storeImpl.callbacks = _.reject(this._storeImpl.callbacks, function(cb) {
-      return cb === callback;
-    });
-  };
-
-  Store.prototype.listen = function(callbackName) {
-    var store;
-    store = this;
-    return {
-      componentDidMount: function() {
-        return store.register(this[callbackName]);
       },
-      componentWillUnmount: function() {
-        return store.unregister(this[callbackName]);
+      dispatch: function(action) {
+        var after, context;
+        assert(this.dispatcherIdsByAction[action] === void 0, "Store " + this.displayName + " attempted to register twice for action " + action.displayName + ".");
+        context = this;
+        after = function() {
+          var prerequisites;
+          prerequisites = arguments;
+          return {
+            to: makeToFn(context, action, prerequisites)
+          };
+        };
+        return {
+          after: after,
+          to: makeToFn(context, action)
+        };
       }
     };
+    store = {
+      _storeImpl: storeImpl,
+      displayName: options.displayName,
+      register: function(callback) {
+        return this._storeImpl.callbacks.push(callback);
+      },
+      unregister: function(callback) {
+        return _.remove(this._storeImpl.callbacks, function(cb) {
+          return cb === callback;
+        });
+      },
+      listen: function(property, fn) {
+        var callback, getState;
+        store = this;
+        getState = function() {
+          var state;
+          state = {};
+          state[property] = fn();
+          return state;
+        };
+        callback = function() {
+          return this.setState(getState());
+        };
+        return {
+          getInitialState: function() {
+            return getState();
+          },
+          componentDidMount: function() {
+            callback = callback.bind(this);
+            return store.register(callback);
+          },
+          componentWillUnmount: function() {
+            return store.unregister(callback);
+          }
+        };
+      },
+      listenWith: function(stateFnName) {
+        var callback;
+        store = this;
+        callback = function() {
+          return this.setState(this[stateFnName]());
+        };
+        return {
+          getInitialState: function() {
+            return this[stateFnName]();
+          },
+          componentDidMount: function() {
+            callback = callback.bind(this);
+            return store.register(callback);
+          },
+          componentWillUnmount: function() {
+            return store.unregister(callback);
+          }
+        };
+      }
+    };
+    _.assign(storeImpl, _.omit(options, 'initialize', 'public'), bindToContextIfFunction(storeImpl));
+    if (options["public"]) {
+      _.assign(store, options["public"], bindToContextIfFunction(storeImpl));
+      _.assign(storeImpl, options["public"], bindToContextIfFunction(storeImpl));
+    }
+    if (options.initialize) {
+      storeImpl.dispatch(Hippodrome.start).to(options.initialize);
+    }
+    return store;
   };
 
-  Store.prototype.trigger = function() {
-    return this._storeImpl.trigger();
-  };
+  Hippodrome.createStore = createStore;
 
-  Hippodrome.Store = Store;
+  Hippodrome.start = new Hippodrome.createAction({
+    displayName: 'start Hippodrome',
+    build: function(options) {
+      return options || {};
+    }
+  });
 
   if (isNode) {
     module.exports = Hippodrome;
