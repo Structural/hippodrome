@@ -49,10 +49,10 @@ createStore = (options) ->
       callback = () ->
         @setState(getState())
       return {
-        getInitialState: ->
-          getState()
-        componentDidMount: ->
+        componentWillMount: ->
           callback = callback.bind(this)
+          callback()
+        componentDidMount: ->
           store.register(callback)
         componentWillUnmount: ->
           store.unregister(callback)
@@ -62,10 +62,10 @@ createStore = (options) ->
       callback = () ->
         @setState(this[stateFnName]())
       return {
-        getInitialState: ->
-          this[stateFnName]()
-        componentDidMount: ->
+        componentWillMount: ->
           callback = callback.bind(this)
+          callback()
+        componentDidMount: ->
           store.register(callback)
         componentWillUnmount: ->
           store.unregister(callback)

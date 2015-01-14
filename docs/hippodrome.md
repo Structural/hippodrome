@@ -194,9 +194,8 @@ return React mixins that manage updating component state.
 
 `listen` takes the name of a state property and a function (usually, this is
 a public function on the store you're listening to, but it could be any
-function of no arguments).  It defines @getInitialState so that the return
-value of the function is available at that property for the component's first
-render, and will call @setState whenever the Store run @trigger.
+function of no arguments).  It calls @setState in componentWillMount and then
+will call @setState again whenever the Store runs @trigger.
 
 `listenWith` takes the name of a function (defined on the component) and uses
 that function to determine the state object it should update the component with.
@@ -204,7 +203,7 @@ This is a little less clean than `listen`, but useful when you need to
 pass arguments to a function, pull more than one property out of a store, or
 use more than one store to calculate a property.  Note that the function you
 give to `listenWith` doesn't call @setState directly - it returns an object
-that can be passed to it (and to @getInitialState).
+that can be passed to it.
 
 ```coffeescript
 Components.Profile = React.createClass
