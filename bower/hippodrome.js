@@ -270,11 +270,11 @@
           return this.setState(getState());
         };
         return {
-          getInitialState: function() {
-            return getState();
+          componentWillMount: function() {
+            callback = callback.bind(this);
+            return callback();
           },
           componentDidMount: function() {
-            callback = callback.bind(this);
             return store.register(callback);
           },
           componentWillUnmount: function() {
@@ -289,11 +289,11 @@
           return this.setState(this[stateFnName]());
         };
         return {
-          getInitialState: function() {
-            return this[stateFnName]();
+          componentWillMount: function() {
+            callback = callback.bind(this);
+            return callback();
           },
           componentDidMount: function() {
-            callback = callback.bind(this);
             return store.register(callback);
           },
           componentWillUnmount: function() {
