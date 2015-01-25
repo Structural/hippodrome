@@ -225,8 +225,14 @@
       dispatcherIdsByAction: {},
       callbacks: [],
       trigger: function() {
-        return _.each(this.callbacks, function(callback) {
-          return callback();
+        return _.each(this.callbacks, function(spec) {
+          var callback, context;
+          callback = spec.callback, context = spec.context;
+          if (context) {
+            return callback.call(context);
+          } else {
+            return callback();
+          }
         });
       },
       dispatch: function(action) {
@@ -249,11 +255,19 @@
     store = {
       _storeImpl: storeImpl,
       displayName: options.displayName,
-      register: function(callback) {
-        return this._storeImpl.callbacks.push(callback);
+      register: function(callback, context) {
+        if (context == null) {
+          context = null;
+        }
+        return this._storeImpl.callbacks.push({
+          callback: callback,
+          context: context
+        });
       },
       unregister: function(callback) {
-        return _.remove(this._storeImpl.callbacks, function(cb) {
+        return _.remove(this._storeImpl.callbacks, function(spec) {
+          var cb;
+          cb = spec.callback;
           return cb === callback;
         });
       },
@@ -271,14 +285,13 @@
         };
         return {
           componentWillMount: function() {
-            callback = callback.bind(this);
-            return callback();
+            return callback.call(this);
           },
           componentDidMount: function() {
-            return store.register(callback);
+            return store.register(callback, this);
           },
           componentWillUnmount: function() {
-            return store.unregister(callback);
+            return store.unregister(callback, this);
           }
         };
       },
@@ -290,14 +303,13 @@
         };
         return {
           componentWillMount: function() {
-            callback = callback.bind(this);
-            return callback();
+            return callback.call(this);
           },
           componentDidMount: function() {
-            return store.register(callback);
+            return store.register(callback, this);
           },
           componentWillUnmount: function() {
-            return store.unregister(callback);
+            return store.unregister(callback, this);
           }
         };
       }
