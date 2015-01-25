@@ -18,7 +18,12 @@ createStore = (options) ->
   storeImpl = {
     dispatcherIdsByAction: {}
     callbacks: []
-    trigger: -> _.each(@callbacks, (callback) -> callback())
+    trigger: -> _.each @callbacks, (spec) ->
+      {callback, context} = spec
+      if context
+        callback.call(context)
+      else
+        callback()
     dispatch: (action) ->
       assert(@dispatcherIdsByAction[action] == undefined,
              "Store #{@displayName} attempted to register twice for action
@@ -35,10 +40,15 @@ createStore = (options) ->
     _storeImpl: storeImpl
     displayName: options.displayName
 
-    register: (callback) ->
-      @_storeImpl.callbacks.push(callback)
+    register: (callback, context=null) ->
+      @_storeImpl.callbacks.push({
+        callback: callback
+        context: context
+      })
     unregister: (callback) ->
-      _.remove(@_storeImpl.callbacks, (cb) -> cb == callback)
+      _.remove @_storeImpl.callbacks, (spec) ->
+        cb = spec.callback
+        return cb == callback
 
     listen: (property, fn) ->
       store = this
@@ -50,12 +60,11 @@ createStore = (options) ->
         @setState(getState())
       return {
         componentWillMount: ->
-          callback = callback.bind(this)
-          callback()
+          callback.call(this)
         componentDidMount: ->
-          store.register(callback)
+          store.register(callback, this)
         componentWillUnmount: ->
-          store.unregister(callback)
+          store.unregister(callback, this)
       }
     listenWith: (stateFnName) ->
       store = this
@@ -63,12 +72,11 @@ createStore = (options) ->
         @setState(this[stateFnName]())
       return {
         componentWillMount: ->
-          callback = callback.bind(this)
-          callback()
+          callback.call(this)
         componentDidMount: ->
-          store.register(callback)
+          store.register(callback, this)
         componentWillUnmount: ->
-          store.unregister(callback)
+          store.unregister(callback, this)
       }
   }
 

@@ -219,6 +219,9 @@ mixins, you can register and unregister from a Store directly.  Make sure to
 always register in `componentDidMount` and unregister in `componentWillUnmount`
 to avoid React errors from trying to update an unmounted component.
 
+`register` can take an optional second argument for the context to run the
+callback in.
+
 ## Deferred Tasks
 
 A Deferred Task (or just Task for short) is in many ways the dual of a Store.
